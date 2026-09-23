@@ -536,28 +536,122 @@ function renderFittingSelected(){
     box.appendChild(t);
   });
 }
-function removeFitting(id){ fittingSelected=fittingSelected.filter(p=>p.id!==id); renderFittingSelected(); }
-function generateFitting(){
-  const panel=document.getElementById('fittingResult');
-  if(!userPhoto){ panel.innerHTML='<div class="hint">Envie sua foto para continuar.</div>'; return; }
-  if(fittingSelected.length===0){ panel.innerHTML='<div class="hint">Escolha ao menos uma peça.</div>'; return; }
-  const steps=['Preparing your look...','Adjusting your outfit...','Creating your style...','Your look is ready.'];
-  let i=0;
-  panel.innerHTML=`<div class="spinner"></div><div class="gen-status" id="genStatus">${steps[0]}</div>`;
-  const iv=setInterval(()=>{
-    i++;
-    if(i<steps.length){ document.getElementById('genStatus').textContent=steps[i]; }
-    if(i>=steps.length-1){
-      clearInterval(iv);
-      // TODO: substituir por chamada ao backend (endpoint próprio) que integra com o modelo de IA de geração de imagem.
-      // Nunca chamar a API de IA diretamente do frontend com uma chave secreta — o backend deve intermediar essa chamada.
-      setTimeout(()=>{
-        panel.innerHTML=`<img src="${userPhoto}" style="max-height:280px;border-radius:3px;opacity:.94"><div class="gen-status">Your look is ready.</div><div class="hint">Pré-visualização local — a geração final via IA será conectada ao backend.</div>`;
-      },700);
-    }
-  },900);
-}
 
+  if(!userPhoto){
+    panel.innerHTML = '<div class="hint">Envie sua foto para continuar.</div>';
+    return;
+  }
+
+  if(fittingSelected.length === 0){
+    panel.innerHTML = '<div class="hint">Escolha ao menos uma peça.</div>';
+    return;
+  }
+
+  const clothing = fittingSelected[0];
+
+  if(!clothing.img){
+    panel.innerHTML = '<div class="hint">A peça selecionada não possui imagem.</div>';
+    return;
+  }
+
+  panel.innerHTML = `
+    <div class="spinner"></div>
+    <div class="gen-status">VESTRA AI está criando seu look...</div>
+  `;
+
+  try {
+    const response = await fetch('/api/generate-fitting', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        personImage: userPhoto,
+        clothingImage: clothing.img
+      })
+    });
+
+    const data = await response.json();
+
+    if(!response.ok){
+      throw new Error(data.error || 'Erro ao gerar o look.');
+    }
+
+    panel.innerHTML = `
+      <img src="${data.imageUrl}" style="max-width:100%;max-height:520px;border-radius:8px;">
+      <div class="gen-status">Seu look está pronto! ✨</div>
+    `;
+
+  } catch(error) {
+    console.error(error);
+
+    panel.innerHTML = `
+      <div class="hint">
+        Não foi possível gerar o look agora.<br>
+        ${error.message}
+      </div>
+    `;
+  }
+}function removeFitting(id){ fittingSelected=fittingSelected.filter(p=>p.id!==id); renderFittingSelected(); }
+async function generateFitting(){
+  const panel = document.getElementById('fittingResult');
+
+  if(!userPhoto){
+    panel.innerHTML = '<div class="hint">Envie sua foto para continuar.</div>';
+    return;
+  }
+
+  if(fittingSelected.length === 0){
+    panel.innerHTML = '<div class="hint">Escolha ao menos uma peça.</div>';
+    return;
+  }
+
+  const clothing = fittingSelected[0];
+
+  if(!clothing.img){
+    panel.innerHTML = '<div class="hint">A peça selecionada não possui imagem.</div>';
+    return;
+  }
+
+  panel.innerHTML = `
+    <div class="spinner"></div>
+    <div class="gen-status">VESTRA AI está criando seu look...</div>
+  `;
+
+  try {
+    const response = await fetch('/api/generate-fitting', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        personImage: userPhoto,
+        clothingImage: clothing.img
+      })
+    });
+
+    const data = await response.json();
+
+    if(!response.ok){
+      throw new Error(data.error || 'Erro ao gerar o look.');
+    }
+
+    panel.innerHTML = `
+      <img src="${data.imageUrl}" style="max-width:100%;max-height:520px;border-radius:8px;">
+      <div class="gen-status">Seu look está pronto! ✨</div>
+    `;
+
+  } catch(error) {
+    console.error(error);
+
+    panel.innerHTML = `
+      <div class="hint">
+        Não foi possível gerar o look agora.<br>
+        ${error.message}
+      </div>
+    `;
+  }
+}
 /* ---------- LOOK CREATOR ---------- */
 function renderLookSlots(){
   const wrap=document.getElementById('lookSlots'); wrap.innerHTML='';
