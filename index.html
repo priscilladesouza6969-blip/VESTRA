@@ -1,1 +1,1347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VESTRA — Your Digital Wardrobe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0a0a0a; --ink:#141414; --paper:#f4f4f2; --steel:#8a8c8e; --silver:#d4d6d8;
+  --line:rgba(255,255,255,.12); --holo1:#b9e4ff; --holo2:#e6c9ff; --holo3:#ffd7ea;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:inherit; margin:0; padding:0;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+html,body{height:100%;}
+body{background:var(--black); color:var(--paper); font-family:'Inter',sans-serif; font-weight:300; overflow-x:hidden;}
+h1,h2,h3,.display{font-family:'Bodoni Moda',serif;}
+::selection{background:var(--holo2); color:#000;}
+a{color:inherit; text-decoration:none;}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+input,select,textarea{font-family:inherit; background:var(--ink); border:1px solid var(--line); color:var(--paper); padding:.7rem .9rem; border-radius:2px; width:100%; font-size:.9rem;}
+.vis-hidden-file{position:fixed; top:0; left:0; width:1px; height:1px; opacity:0; overflow:hidden; z-index:-1;}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--holo1); outline-offset:2px;}
+
+/* NAV */
+header{position:sticky; top:0; z-index:50; padding-top:env(safe-area-inset-top,0px); background:rgba(10,10,10,.85); backdrop-filter:blur(14px); border-bottom:1px solid var(--line);}
+.navwrap{max-width:1280px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; gap:1rem;}
+.logo{font-size:1.4rem; letter-spacing:.12em; font-weight:500;}
+nav.tabs{display:flex; gap:1.6rem; overflow-x:auto; scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{font-size:.78rem; letter-spacing:.05em; color:var(--steel); white-space:nowrap; padding:.3rem 0; border-bottom:1px solid transparent; transition:color .2s, border-color .2s;}
+nav.tabs button.active,nav.tabs button:hover{color:var(--paper); border-color:var(--silver);}
+
+main{max-width:1280px; margin:0 auto; padding:0 1.5rem;}
+.view{display:none; animation:rise .5s ease both;}
+.view.active{display:block;}
+@keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
+@media (prefers-reduced-motion:reduce){.view{animation:none;}}
+
+/* HERO */
+.hero{position:relative; min-height:min(88vh,780px); display:flex; align-items:center; margin:0 -1.5rem; padding:0 1.5rem; overflow:hidden; border-bottom:1px solid var(--line);}
+.hero::before{content:'';position:absolute; inset:0; background:
+  radial-gradient(60% 55% at 78% 20%, rgba(185,228,255,.16), transparent 60%),
+  radial-gradient(55% 50% at 20% 85%, rgba(230,201,255,.14), transparent 60%),
+  linear-gradient(180deg, #0a0a0a, #050505);
+  z-index:0;}
+.hero-inner{position:relative; z-index:1; max-width:760px; padding:6rem 0;}
+.eyebrow{font-size:.72rem; letter-spacing:.18em; color:var(--holo2); margin-bottom:1.4rem;}
+.hero h1{font-size:clamp(2.6rem,7vw,4.6rem); line-height:1.02; font-weight:500;}
+.hero p.sub{font-size:1.1rem; color:var(--silver); margin-top:1.3rem; font-family:'Bodoni Moda',serif;}
+.hero p.copy{max-width:480px; color:var(--steel); margin-top:1rem; line-height:1.6; font-size:.95rem;}
+.cta-row{display:flex; gap:1rem; margin-top:2.4rem; flex-wrap:wrap;}
+.btn{padding:.95rem 1.9rem; font-size:.78rem; letter-spacing:.08em; border-radius:1px; transition:transform .2s, background .2s;}
+.btn-primary{background:var(--paper); color:#000;}
+.btn-primary:hover{transform:translateY(-2px);}
+.btn-ghost{border:1px solid var(--line); color:var(--paper);}
+.btn-ghost:hover{border-color:var(--silver);}
+
+section{padding:4.5rem 0;}
+.sec-head{display:flex; justify-content:space-between; align-items:flex-end; gap:1rem; margin-bottom:2.2rem; border-bottom:1px solid var(--line); padding-bottom:1.2rem;}
+.sec-head h2{font-size:1.9rem; font-weight:500;}
+.sec-head p{color:var(--steel); font-size:.88rem; max-width:360px; text-align:right;}
+
+/* CLOSET GRID */
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:.8rem;}
+.piece{background:linear-gradient(155deg,#151515,#0d0d0d); border:1px solid var(--line); border-radius:3px; overflow:hidden; position:relative; transition:border-color .2s;}
+.piece:hover{border-color:var(--silver);}
+.piece .thumb{aspect-ratio:3/4; display:flex; align-items:center; justify-content:center; background-size:cover; background-position:center; position:relative;}
+.piece .thumb img{width:100%; height:100%; object-fit:cover;}
+.piece .placeholder{font-family:'Bodoni Moda',serif; font-size:.75rem; color:var(--steel); text-align:center; padding:1rem;}
+.piece .meta{padding:.55rem;}
+.piece .meta h4{font-size:.78rem; font-weight:500;}
+.piece .meta span{font-size:.66rem; color:var(--steel); display:block; margin-top:.15rem;}
+.piece .actions{position:absolute; top:.5rem; right:.5rem; display:flex; gap:.35rem;}
+.icon-btn{width:28px; height:28px; border-radius:50%; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); font-size:.8rem; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);}
+.icon-btn.fav.on{color:var(--holo3);}
+.add-card{border:1px dashed var(--line); border-radius:3px; aspect-ratio:3/4.6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6rem; color:var(--steel); transition:border-color .2s, color .2s;}
+.add-card:hover{border-color:var(--silver); color:var(--paper);}
+.add-card .plus{font-size:1.8rem; font-family:'Bodoni Moda',serif;}
+.filters{display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.6rem;}
+.chip{font-size:.72rem; letter-spacing:.03em; padding:.45rem 1rem; border:1px solid var(--line); border-radius:20px; color:var(--steel);}
+.chip.active{background:var(--paper); color:#000; border-color:var(--paper);}
+.empty{color:var(--steel); font-size:.9rem; padding:2rem 0; text-align:center; border:1px dashed var(--line); border-radius:3px;}
+
+/* MODAL */
+.overlay{position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:100; padding:1.2rem;}
+.overlay.active{display:flex;}
+.modal{background:#111; border:1px solid var(--line); max-width:420px; width:100%; padding:1.8rem; border-radius:4px; max-height:88vh; overflow-y:auto;}
+.modal h3{font-size:1.3rem; margin-bottom:1.2rem; font-weight:500;}
+.field{margin-bottom:.9rem;}
+.field label{display:block; font-size:.72rem; letter-spacing:.05em; color:var(--steel); margin-bottom:.4rem;}
+.field-row{display:flex; gap:.7rem;}
+.field-row .field{flex:1;}
+.modal-actions{display:flex; gap:.7rem; margin-top:1.3rem;}
+.modal-actions .btn{flex:1; text-align:center;}
+
+/* FITTING ROOM */
+.flow{display:grid; grid-template-columns:1fr auto 1fr; gap:1.5rem; align-items:center; margin-bottom:2rem;}
+@media(max-width:720px){.flow{grid-template-columns:1fr;}}
+.arrow{font-size:1.4rem; color:var(--steel); text-align:center;}
+.dropzone{border:1px solid var(--line); border-radius:4px; min-height:340px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.8rem; padding:1.2rem; text-align:center; position:relative; background:#0d0d0d;}
+.dropzone img{max-width:100%; max-height:300px; object-fit:contain; border-radius:3px;}
+.dropzone .hint{color:var(--steel); font-size:.85rem;}
+.selected-pieces{display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center;}
+.tag{font-size:.72rem; padding:.35rem .7rem; border:1px solid var(--line); border-radius:20px; display:flex; align-items:center; gap:.4rem;}
+.tag button{color:var(--steel);}
+.result-panel{border:1px solid var(--line); border-radius:4px; min-height:340px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; background:#0d0d0d; text-align:center; padding:1.5rem;}
+.spinner{width:44px; height:44px; border:2px solid var(--line); border-top-color:var(--holo1); border-radius:50%; animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.gen-status{font-family:'Bodoni Moda',serif; font-size:1rem; color:var(--silver);}
+
+/* LOOK CREATOR */
+.slots{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:.9rem; margin-bottom:1.6rem;}
+.slot{border:1px dashed var(--line); border-radius:3px; aspect-ratio:3/4; display:flex; align-items:center; justify-content:center; position:relative; background:#0d0d0d;}
+.slot.filled{border-style:solid; border-color:var(--silver);}
+.slot .rm{position:absolute; top:.3rem; right:.3rem;}
+.slot .add-label{color:var(--steel); font-size:.7rem; text-align:center; padding:.5rem;}
+.picker{display:flex; gap:.7rem; overflow-x:auto; padding-bottom:.5rem; margin-bottom:1.5rem;}
+.picker .pchip{flex:0 0 auto; width:90px; text-align:center; font-size:.7rem; color:var(--steel); cursor:pointer;}
+.picker .pchip .sw{width:90px; height:110px; border:1px solid var(--line); border-radius:3px; margin-bottom:.3rem; display:flex; align-items:center; justify-content:center; background:#111;}
+.picker .pchip.sel .sw{border-color:var(--holo1);}
+
+/* CHAT */
+.chatbox{border:1px solid var(--line); border-radius:4px; display:flex; flex-direction:column; height:520px; background:#0d0d0d;}
+.chat-msgs{flex:1; overflow-y:auto; padding:1.3rem; display:flex; flex-direction:column; gap:.9rem;}
+.msg{max-width:78%; padding:.7rem 1rem; border-radius:12px; font-size:.88rem; line-height:1.5;}
+.msg.user{align-self:flex-end; background:var(--paper); color:#000; border-bottom-right-radius:2px;}
+.msg.ai{align-self:flex-start; background:var(--ink); border:1px solid var(--line); border-bottom-left-radius:2px;}
+.chat-input{display:flex; gap:.6rem; padding:1rem; border-top:1px solid var(--line);}
+.chat-input input{flex:1;}
+.suggestions{display:flex; gap:.5rem; flex-wrap:wrap; padding:0 1rem 1rem;}
+.suggestions button{font-size:.72rem; padding:.4rem .8rem; border:1px solid var(--line); border-radius:20px; color:var(--steel);}
+.suggestions button:hover{color:var(--paper); border-color:var(--silver);}
+
+/* MEASUREMENTS */
+.meas-grid{display:grid; grid-template-columns:1fr 1fr; gap:2rem;}
+@media(max-width:720px){.meas-grid{grid-template-columns:1fr;}}
+.meas-card{border:1px solid var(--line); border-radius:4px; padding:1.5rem;}
+.meas-card h3{font-size:1.05rem; margin-bottom:1.1rem; font-weight:500;}
+.meas-fields{display:grid; grid-template-columns:1fr 1fr; gap:.9rem;}
+.note{font-size:.78rem; color:var(--steel); margin-top:1rem; line-height:1.5;}
+.savebar{margin-top:1.5rem;}
+
+/* PROFILE */
+.profile-head{display:flex; gap:1.5rem; align-items:center; margin-bottom:2.5rem; flex-wrap:wrap;}
+.avatar{width:96px; height:96px; border-radius:50%; background:linear-gradient(155deg,var(--holo1),var(--holo2)); display:flex; align-items:center; justify-content:center; font-family:'Bodoni Moda',serif; font-size:1.8rem; color:#000; flex:0 0 auto; overflow:hidden;}
+.avatar img{width:100%; height:100%; object-fit:cover;}
+.stat-row{display:flex; gap:2.2rem; margin-top:.6rem;}
+.stat b{display:block; font-size:1.3rem; font-family:'Bodoni Moda',serif;}
+.stat span{font-size:.72rem; color:var(--steel); letter-spacing:.04em;}
+
+.del-link{display:block; margin-top:.4rem; font-size:.72rem; color:var(--steel); text-decoration:underline; text-underline-offset:2px;}
+.del-link:hover{color:#ff9a9a;}
+
+/* PLANS */
+.plan-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1.2rem;}
+.plan-card{border:1px solid var(--line); border-radius:4px; padding:1.6rem; display:flex; flex-direction:column; gap:.9rem; background:#0d0d0d;}
+.plan-card.current{border-color:var(--holo1);}
+.plan-card h3{font-size:1.15rem; font-weight:500;}
+.plan-price{font-family:'Bodoni Moda',serif; font-size:1.7rem;}
+.plan-price span{font-size:.75rem; color:var(--steel); font-family:'Inter',sans-serif;}
+.plan-benefits{list-style:none; font-size:.82rem; color:var(--silver); display:flex; flex-direction:column; gap:.45rem; flex:1;}
+.plan-benefits li::before{content:'— '; color:var(--steel);}
+.badge-current{font-size:.68rem; letter-spacing:.05em; color:var(--holo1); border:1px solid var(--holo1); border-radius:20px; padding:.2rem .7rem; align-self:flex-start;}
+
+/* CHECKOUT */
+.checkout-wrap{max-width:520px; margin:0 auto; border:1px solid var(--line); border-radius:4px; padding:2rem; background:#0d0d0d;}
+.checkout-row{display:flex; justify-content:space-between; padding:.7rem 0; border-bottom:1px solid var(--line); font-size:.88rem;}
+.checkout-row:last-of-type{border-bottom:none;}
+.pay-methods{display:flex; gap:.6rem; margin:1.2rem 0; flex-wrap:wrap;}
+.pay-methods .chip{cursor:pointer;}
+.pix-box{border:1px dashed var(--line); border-radius:3px; padding:1.2rem; text-align:center; font-size:.82rem; color:var(--steel); margin-bottom:1rem;}
+
+/* MEU PLANO */
+.myplan-card{border:1px solid var(--line); border-radius:4px; padding:1.6rem; margin-top:1rem;}
+.myplan-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin:1rem 0;}
+.myplan-grid .stat b{font-size:1.1rem;}
+.history-list{font-size:.8rem; color:var(--silver); display:flex; flex-direction:column; gap:.5rem; margin-top:.8rem;}
+.history-list .hrow{display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:.5rem;}
+
+/* FAQ */
+.faq-item{border-bottom:1px solid var(--line);}
+.faq-q{padding:1rem 0; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-size:.92rem;}
+.faq-q .sign{color:var(--steel); font-family:'Bodoni Moda',serif;}
+.faq-a{max-height:0; overflow:hidden; color:var(--steel); font-size:.85rem; line-height:1.6; transition:max-height .25s ease;}
+.faq-item.open .faq-a{max-height:200px; padding-bottom:1rem;}
+
+/* BEAUTY FEATURED ON HOME */
+.home-beauty-feature{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:2.8rem 2rem;margin:3rem 0;background:radial-gradient(circle at 85% 20%,rgba(220,180,255,.14),transparent 35%),linear-gradient(135deg,#151515,#090909);text-align:center;}
+.home-beauty-feature:before{content:"BEAUTYFUL";position:absolute;inset:auto -10% -45%;font-family:'Bodoni Moda',serif;font-size:8rem;letter-spacing:.12em;color:rgba(255,255,255,.025);pointer-events:none;}
+.home-beauty-feature .eyebrow{font-size:.68rem;letter-spacing:.2em;color:var(--holo2);margin-bottom:.7rem;}
+.home-beauty-feature h2{font-family:'Bodoni Moda',serif;font-size:clamp(2rem,6vw,3.4rem);font-weight:400;letter-spacing:.02em;}
+.home-beauty-feature h2 span{background:linear-gradient(90deg,var(--holo1),var(--holo2),var(--holo3));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.home-beauty-feature p{max-width:620px;margin:1rem auto 1.5rem;color:var(--silver);line-height:1.7;font-size:.92rem;}
+.home-beauty-feature .beauty-actions{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap;position:relative;z-index:1;}
+.home-beauty-feature .beauty-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;max-width:650px;margin:2rem auto 0;position:relative;z-index:1;}
+.home-beauty-feature .beauty-mini div{border:1px solid var(--line);padding:1rem .6rem;border-radius:5px;background:rgba(255,255,255,.025);font-size:.72rem;color:var(--silver);}
+@media(max-width:600px){.home-beauty-feature{padding:2.2rem 1rem}.home-beauty-feature .beauty-mini{grid-template-columns:1fr;}}
+
+/* BEAUTY */
+.beauty-hero{border:1px solid var(--line); border-radius:4px; padding:2.4rem 1.6rem; text-align:center; margin-bottom:2.5rem; background:linear-gradient(155deg,#131313,#0a0a0a);}
+.beauty-hero h2{font-size:clamp(1.7rem,5vw,2.4rem);}
+.beauty-hero .sub{font-family:'Bodoni Moda',serif; color:var(--holo2); margin-top:.5rem;}
+.beauty-hero p{color:var(--steel); max-width:460px; margin:.9rem auto 1.5rem; font-size:.9rem;}
+.beauty-cats{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:.8rem; margin-bottom:2.5rem;}
+.beauty-cat{border:1px solid var(--line); border-radius:4px; padding:1.3rem .6rem; text-align:center; font-size:.8rem; color:var(--silver); background:#0d0d0d;}
+.demo-tag{font-size:.62rem; letter-spacing:.04em; color:var(--steel); border:1px solid var(--line); border-radius:20px; padding:.15rem .5rem; display:inline-block; margin-top:.3rem;}
+.prod-card{background:linear-gradient(155deg,#151515,#0d0d0d); border:1px solid var(--line); border-radius:3px; overflow:hidden; position:relative;}
+.prod-card .thumb{aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; background:#111; font-family:'Bodoni Moda',serif; color:var(--steel); font-size:.75rem; text-align:center; padding:.6rem;}
+.prod-card .meta{padding:.75rem;}
+.prod-card h4{font-size:.85rem; font-weight:500;}
+.prod-card .brand{font-size:.7rem; color:var(--steel); margin-top:.15rem;}
+.prod-card .price{font-family:'Bodoni Moda',serif; margin-top:.4rem;}
+.prod-card .rating{font-size:.7rem; color:var(--holo2); margin-top:.2rem;}
+.prod-card .btnrow{display:flex; gap:.4rem; margin-top:.6rem;}
+.prod-card .btnrow button{flex:1; font-size:.65rem; padding:.45rem; border:1px solid var(--line); border-radius:2px;}
+.store-card{border:1px solid var(--line); border-radius:4px; padding:1.2rem; display:flex; flex-direction:column; gap:.5rem; align-items:center; text-align:center; background:#0d0d0d;}
+.store-logo{width:56px; height:56px; border-radius:50%; background:linear-gradient(155deg,var(--holo1),var(--holo3)); display:flex; align-items:center; justify-content:center; font-family:'Bodoni Moda',serif; color:#000;}
+
+/* VESTRA — adaptive AI / voice / functional states */
+
+.voice-panel{margin:0 1rem .7rem;padding:1rem;border:1px solid var(--line);border-radius:8px;background:linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.015));}
+.voice-title{font-size:.68rem;letter-spacing:.18em;color:var(--holo2);margin-bottom:.75rem;}
+.voice-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;}
+.voice-main{border-color:rgba(255,255,255,.28)!important;}
+.voice-options{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;}
+.voice-options label{font-size:.62rem;letter-spacing:.12em;color:var(--steel);}
+.ai-tools{display:flex;gap:.5rem;flex-wrap:wrap;padding:0 1rem .7rem;align-items:center;}
+.voice-select{background:#0d0d0d;color:var(--silver);border:1px solid var(--line);border-radius:20px;padding:.45rem .7rem;font-size:.7rem;outline:none;}
+.voice-select:focus{border-color:var(--holo1);}
+.voice-label{font-size:.68rem;color:var(--steel);letter-spacing:.04em;}
+.ai-tools .chip{cursor:pointer;}
+.voice-on{border-color:var(--holo1)!important;color:var(--holo1)!important;}
+.ai-state{font-size:.68rem;color:var(--steel);padding:0 1rem .8rem;}
+.ai-state b{color:var(--silver);font-weight:400;}
+.result-actions{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;}
+.result-actions .btn{padding:.65rem 1rem;}
+.ai-memory{border:1px solid var(--line);border-radius:4px;padding:1rem;margin-top:1rem;background:#0b0b0b;color:var(--steel);font-size:.78rem;line-height:1.6;}
+.ai-memory b{color:var(--silver);}
+.v2-badge{font-size:.62rem;letter-spacing:.08em;color:var(--holo1);border:1px solid rgba(185,228,255,.35);border-radius:20px;padding:.2rem .55rem;margin-left:.4rem;vertical-align:middle;}
+
+footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--steel); font-size:.78rem; text-align:center;}
+
+/* VESTRA AI ORB */
+.orb-menu{position:fixed;right:24px;bottom:102px;width:min(330px,calc(100vw - 28px));padding:14px;border:1px solid rgba(210,235,255,.18);border-radius:18px;background:rgba(10,12,16,.92);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 20px 70px rgba(0,0,0,.55),0 0 35px rgba(170,220,255,.10);z-index:10000;opacity:0;transform:translateY(10px) scale(.96);pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.22,.8,.2,1);}
+.orb-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+.orb-menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.orb-menu-head strong{display:block;font-size:.82rem;letter-spacing:.12em}.orb-menu-head span{display:block;color:var(--steel);font-size:.62rem;margin-top:3px}.orb-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:#111;color:var(--paper);font-size:1.1rem}.orb-action{width:100%;display:flex;align-items:center;gap:11px;padding:11px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.035);color:var(--paper);text-align:left;cursor:pointer}.orb-action.primary:hover{border-color:rgba(185,228,255,.45)}.orb-action-icon{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#fff,rgba(185,228,255,.25) 45%,#111 72%);color:#111}.orb-action b{display:block;font-size:.74rem;font-weight:500}.orb-action small{display:block;color:var(--steel);font-size:.62rem;margin-top:2px}.orb-action i{margin-left:auto;width:9px;height:9px;border-radius:50%;background:#555;box-shadow:0 0 0 4px rgba(255,255,255,.03)}.orb-action i.on{background:#b9e4ff;box-shadow:0 0 12px rgba(185,228,255,.8)}.orb-menu-row{display:flex;gap:7px;margin-top:8px}.orb-mini{flex:1;border:1px solid var(--line);border-radius:12px;background:#101010;color:var(--steel);padding:9px;font-size:.62rem}.orb-hint{font-size:.59rem;line-height:1.45;color:#777;margin:10px 2px 1px}.vestra-orb{will-change:left,top,transform;transition:filter .25s ease}.vestra-orb:hover{filter:drop-shadow(0 0 22px rgba(185,228,255,.38))}.vestra-orb.listening,.vestra-orb.speaking{transform:scale(1.02)}
+@media(max-width:600px){.orb-menu{right:14px;bottom:90px;width:calc(100vw - 28px);}}
+
+.voice-row{display:flex;align-items:center;gap:.85rem;}
+.voice-bottom{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.8rem;}
+.voice-info{display:flex;flex-direction:column;gap:.22rem;min-width:0;}
+.voice-info strong{font-size:.82rem;font-weight:500;color:var(--paper);}
+.voice-info span{font-size:.68rem;color:var(--steel);line-height:1.35;}
+.voice-circle-btn{width:48px;height:48px;min-width:48px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:radial-gradient(circle at 35% 30%,#fff,rgba(255,255,255,.45) 14%,rgba(185,228,255,.18) 38%,rgba(10,10,10,.95) 72%);color:#fff;cursor:pointer;box-shadow:0 0 22px rgba(185,228,255,.16);font-size:1rem;}
+.voice-circle-btn.voice-on{box-shadow:0 0 28px rgba(185,228,255,.42),0 0 60px rgba(185,228,255,.12);animation:orbPulse 1.3s infinite;}
+@keyframes orbPulse{50%{transform:scale(1.07);}}
+.vestra-orb{position:fixed;left:auto;right:22px;bottom:22px;width:68px;height:68px;border:0;border-radius:50%;padding:0;background:transparent;z-index:9999;cursor:grab;touch-action:none;filter:drop-shadow(0 0 16px rgba(185,228,255,.24));}
+.vestra-orb:active{cursor:grabbing;}
+.orb-core{position:absolute;inset:12px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff 0 5%,rgba(205,239,255,.95) 12%,rgba(145,203,255,.45) 32%,rgba(35,40,55,.9) 68%,#050505 100%);box-shadow:inset 0 0 15px rgba(255,255,255,.22),0 0 22px rgba(185,228,255,.28);}
+.orb-ring{position:absolute;inset:4px;border-radius:50%;border:1px solid rgba(185,228,255,.5);box-shadow:0 0 16px rgba(185,228,255,.2);}
+.orb-status{position:absolute;left:50%;top:100%;transform:translate(-50%,5px);font-size:.48rem;letter-spacing:.16em;color:var(--steel);white-space:nowrap;pointer-events:none;}
+.vestra-orb.listening .orb-core{animation:orbListen .8s infinite alternate;}
+.vestra-orb.speaking .orb-core{animation:orbSpeak .55s infinite alternate;}
+@keyframes orbListen{to{transform:scale(1.16);box-shadow:inset 0 0 20px rgba(255,255,255,.3),0 0 35px rgba(185,228,255,.5);}}
+@keyframes orbSpeak{to{transform:scale(1.22);box-shadow:inset 0 0 24px rgba(255,255,255,.34),0 0 42px rgba(185,228,255,.55);}}
+@media(max-width:600px){.chatbox{height:calc(100vh - 210px);min-height:470px;}.voice-panel{margin:.7rem 0;padding:.8rem;}.ai-tools{padding:0 0 .6rem;}.ai-state{padding:0 0 .7rem;}.vestra-orb{width:62px;height:62px;right:14px;bottom:14px;}}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="navwrap">
+    <div class="logo">VESTRA</div>
+    <nav class="tabs" id="tabs">
+      <button data-view="home" class="active">HOME</button>
+      <button data-view="closet">MY CLOSET</button>
+      <button data-view="fitting">AI FITTING ROOM</button>
+      <button data-view="look">CREATE YOUR LOOK</button>
+      <button data-view="stylist">AI STYLIST</button>
+      <button data-view="measures">MEASURES</button>
+      <button data-view="plans">PLANOS</button>
+      <button data-view="suporte">SUPORTE</button>
+      <button data-view="beauty">💄 BEAUTY</button>
+      <button data-view="profile">MY PROFILE</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section class="view active" id="view-home">
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="eyebrow">FASHION × AI × DIGITAL WARDROBE</div>
+        <h1>YOUR STYLE.<br>YOUR DIGITAL WARDROBE.</h1>
+        <p class="sub">Vista. Experimente. Crie.</p>
+        <p class="copy">Seu guarda-roupa digital, seu estilo e uma nova forma de experimentar a moda com inteligência artificial.</p>
+        <div class="cta-row">
+          <button class="btn btn-primary" onclick="showView('fitting')">EXPERIMENTAR AGORA</button>
+          <button class="btn btn-ghost" onclick="showView('closet')">EXPLORAR VESTRA</button>
+        </div>
+      </div>
+    </div>
+    <div class="home-beauty-feature">
+      <div class="eyebrow">VESTRA BEAUTYFUL</div>
+      <h2>BEAUTY<span>FUL</span></h2>
+      <p>Uma experiência de beleza com IA para explorar maquiagem, cabelo e seu estilo.</p>
+      <div class="beauty-actions">
+        <button class="btn btn-primary" onclick="showView('beauty')">ABRIR BEAUTYFUL</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSET -->
+  <section class="view" id="view-closet">
+    <div class="sec-head">
+      <h2>My Closet</h2>
+      <p>Seu guarda-roupa digital. Adicione peças, organize por categoria e monte looks.</p>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="closetGrid"></div>
+  </section>
+
+  <!-- FITTING ROOM -->
+  <section class="view" id="view-fitting">
+    <div class="sec-head">
+      <h2>AI Fitting Room</h2>
+      <p>Sua foto + suas roupas → VESTRA AI → seu novo look.</p>
+    </div>
+    <div class="flow">
+      <div class="dropzone" id="photoZone">
+        <input type="file" accept="image/*" id="photoInputGallery" class="vis-hidden-file" onchange="handlePhoto(event)">
+        <input type="file" accept="image/*" capture="user" id="photoInputCamera" class="vis-hidden-file" onchange="handlePhoto(event)">
+        <div id="photoContent">
+          <div class="hint">SUA FOTO</div>
+          <div class="hint" style="font-size:.75rem; margin-bottom:.8rem;">O navegador vai pedir sua permissão antes de abrir a câmera.</div>
+          <div style="display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center;">
+            <button class="btn btn-ghost" onclick="event.stopPropagation(); document.getElementById('photoInputCamera').click()">TIRAR FOTO</button>
+            <button class="btn btn-ghost" onclick="event.stopPropagation(); document.getElementById('photoInputGallery').click()">ENVIAR FOTO</button>
+          </div>
+        </div>
+      </div>
+      <div class="arrow">+</div>
+      <div class="dropzone" id="outfitZone">
+        <div class="hint">SUAS ROUPAS</div>
+        <div class="selected-pieces" id="fittingSelected"></div>
+        <input type="file" accept="image/*" multiple id="garmentUploadInput" class="vis-hidden-file" onchange="handleGarmentUpload(event)">
+        <div style="display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; margin-top:.6rem;">
+          <button class="btn btn-ghost" onclick="openFittingPicker()">ESCOLHER DO CLOSET</button>
+          <button class="btn btn-ghost" onclick="event.stopPropagation(); document.getElementById('garmentUploadInput').click()">ENVIAR FOTO DE ROUPA</button>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-bottom:1rem;">
+      <button class="btn btn-primary" id="experimentarBtn" onclick="generateFitting()">EXPERIMENTAR</button>
+    </div>
+    <p class="note" style="text-align:center; margin-bottom:2rem;" id="creditsHint"></p>
+    <div class="result-panel" id="fittingResult">
+      <div class="hint">SEU NOVO LOOK aparecerá aqui</div>
+    </div>
+  </section>
+
+  <!-- LOOK CREATOR -->
+  <section class="view" id="view-look">
+    <div class="sec-head">
+      <h2>Create Your Look</h2>
+      <p>Combine peças do seu closet em uma composição.</p>
+    </div>
+    <div class="slots" id="lookSlots"></div>
+    <div style="display:flex; gap:.8rem; flex-wrap:wrap; margin-bottom:2rem;">
+      <button class="btn btn-ghost" onclick="openLookPicker()">ADD PIECE</button>
+      <button class="btn btn-primary" onclick="saveLook()">SAVE LOOK</button>
+      <button class="btn btn-ghost" onclick="tryOnLook()">TRY ON</button>
+    </div>
+  </section>
+
+  <!-- STYLIST -->
+  <section class="view" id="view-stylist">
+    <div class="sec-head">
+      <h2>VESTRA AI Stylist</h2>
+      <p>Converse sobre moda, combinações e estilo.</p>
+    </div>
+    <div class="chatbox">
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="msg ai">Olá! Sou a VESTRA AI Stylist. Me conte o que você procura hoje.</div>
+      </div>
+      <div class="suggestions">
+        <button onclick="sendSuggestion('Monte um look para uma festa')">Monte um look para uma festa</button>
+        <button onclick="sendSuggestion('Quero um look dark')">Quero um look dark</button>
+        <button onclick="sendSuggestion('Qual tamanho devo escolher?')">Qual tamanho devo escolher?</button>
+        <button onclick="sendSuggestion('Quais peças do meu closet combinam comigo?')">Use meu closet</button>
+      </div>
+      <div class="voice-panel">
+        <div class="voice-title">VESTRA VOICE</div>
+        <div class="voice-row">
+          <button class="voice-circle-btn" id="voiceBtn" onclick="toggleVoice()" aria-label="Falar com VESTRA">🎙</button>
+          <div class="voice-info">
+            <strong id="voiceModeText">Toque para falar</strong>
+            <span id="voiceModeHint">A VESTRA escuta e responde em voz alta.</span>
+          </div>
+        </div>
+        <div class="voice-bottom">
+          <select id="voiceSelect" class="voice-select" onchange="setVoicePreference(this.value)" aria-label="Escolher voz">
+            <option value="female">♀ Feminina</option>
+            <option value="male">♂ Masculina</option>
+          </select>
+          <button class="chip" onclick="testSelectedVoice()">▶ Testar</button>
+          <button class="chip" onclick="stopSpeaking()">🔇 Parar</button>
+        </div>
+      </div>
+      <div class="ai-tools">
+        <button class="chip" onclick="forgetStyleMemory()">LIMPAR PREFERÊNCIAS</button>
+      </div>
+      <div class="ai-state" id="aiState">VESTRA AI <b>online</b> · aprende suas preferências nesta conta.</div>
+      <div class="chat-input">
+        <input id="chatInput" placeholder="Fale ou escreva para a VESTRA..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="btn btn-primary" onclick="sendChat()">ENVIAR</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEASURES -->
+  <section class="view" id="view-measures">
+    <div class="sec-head">
+      <h2>Measures & Sizes</h2>
+      <p>Suas medidas ajudam a IA a estimar caimento — não é garantia de tamanho perfeito.</p>
+    </div>
+    <div class="meas-grid">
+      <div class="meas-card">
+        <h3>Suas medidas</h3>
+        <div class="meas-fields">
+          <div class="field"><label>Altura (cm)</label><input id="m-altura" type="number"></div>
+          <div class="field"><label>Busto (cm)</label><input id="m-busto" type="number"></div>
+          <div class="field"><label>Cintura (cm)</label><input id="m-cintura" type="number"></div>
+          <div class="field"><label>Quadril (cm)</label><input id="m-quadril" type="number"></div>
+          <div class="field"><label>Ombros (cm)</label><input id="m-ombros" type="number"></div>
+          <div class="field"><label>Tamanho habitual</label><input id="m-tam" placeholder="Ex: M"></div>
+        </div>
+      </div>
+      <div class="meas-card">
+        <h3>Medidas da peça (opcional)</h3>
+        <div class="meas-fields">
+          <div class="field"><label>Comprimento (cm)</label><input id="p-comp" type="number"></div>
+          <div class="field"><label>Largura (cm)</label><input id="p-larg" type="number"></div>
+          <div class="field"><label>Cintura (cm)</label><input id="p-cint" type="number"></div>
+          <div class="field"><label>Quadril (cm)</label><input id="p-quad" type="number"></div>
+          <div class="field"><label>Manga (cm)</label><input id="p-manga" type="number"></div>
+          <div class="field"><label>Outras</label><input id="p-outras" placeholder="Ex: punho 8cm"></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Estas informações são usadas apenas como estimativa de caimento, com base nos dados fornecidos por você.</p>
+    <div class="savebar"><button class="btn btn-primary" onclick="saveMeasures()">SALVAR MEDIDAS</button></div>
+  </section>
+
+  <!-- PROFILE -->
+  <section class="view" id="view-profile">
+    <div class="sec-head"><h2>My Profile</h2><p></p></div>
+    <div class="profile-head">
+      <div class="avatar" id="profAvatar">V</div>
+      <div>
+        <input type="file" accept="image/*" id="avatarInput" class="vis-hidden-file" onchange="handleAvatar(event)">
+        <div class="field" style="max-width:260px; margin-bottom:.6rem;"><label>Nome</label><input id="profName" placeholder="Seu nome" oninput="renderProfile()"></div>
+        <button class="btn btn-ghost" onclick="document.getElementById('avatarInput').click()">ALTERAR FOTO</button>
+        <div class="stat-row">
+          <div class="stat"><b id="statPieces">0</b><span>PEÇAS NO CLOSET</span></div>
+          <div class="stat"><b id="statLooks">0</b><span>LOOKS SALVOS</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="myplan-card">
+      <h3 style="font-size:1.05rem;font-weight:500;margin-bottom:.3rem;">Meu Plano</h3>
+      <div id="myPlanBody"></div>
+    </div>
+  </section>
+
+  <!-- PLANS -->
+  <section class="view" id="view-plans">
+    <div class="sec-head">
+      <h2>Planos VESTRA</h2>
+      <p>Escolha o nível de IA, provador e voz que combina com você.</p>
+    </div>
+    <div class="plan-cards" id="planCards"></div>
+  </section>
+
+  <!-- CHECKOUT -->
+  <section class="view" id="view-checkout">
+    <div class="sec-head"><h2>Checkout</h2><p></p></div>
+    <div class="checkout-wrap" id="checkoutBody"></div>
+  </section>
+
+  <!-- SUPORTE -->
+  <section class="view" id="view-suporte">
+    <div class="sec-head">
+      <h2>Suporte</h2>
+      <p>Dúvidas frequentes e contato direto com a equipe VESTRA.</p>
+    </div>
+    <div id="faqList" style="margin-bottom:2.5rem;"></div>
+    <div class="meas-card" style="max-width:520px;">
+      <h3>Fale com a gente</h3>
+      <div class="field"><label>Nome</label><input id="sup-nome" placeholder="Seu nome"></div>
+      <div class="field"><label>E-mail</label><input id="sup-email" type="email" placeholder="seu@email.com"></div>
+      <div class="field"><label>Assunto</label>
+        <select id="sup-assunto">
+          <option>Dúvida sobre plano</option>
+          <option>Problema no provador de IA</option>
+          <option>Problema com pagamento</option>
+          <option>Sugestão</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="field"><label>Mensagem</label><textarea id="sup-msg" rows="4" placeholder="Descreva o que você precisa"></textarea></div>
+      <button class="btn btn-primary" style="width:100%" onclick="sendSupport()">ENVIAR MENSAGEM</button>
+      <div id="supStatus" class="note"></div>
+    </div>
+  </section>
+
+  <!-- VESTRA BEAUTY -->
+  <section class="view" id="view-beauty">
+    <div class="beauty-hero">
+      <h2>VESTRA BEAUTY</h2>
+      <div class="sub">Sua beleza. Seu estilo. Sua versão.</div>
+      <p>Descubra produtos de beleza, monte combinações e experimente diferentes estilos com inteligência artificial.</p>
+      <div class="cta-row" style="justify-content:center;">
+        <button class="btn btn-primary" onclick="document.getElementById('beautyAiSection').scrollIntoView({behavior:'smooth'})">EXPERIMENTAR COM IA</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('beautyTrending').scrollIntoView({behavior:'smooth'})">EXPLORAR PRODUTOS</button>
+      </div>
+    </div>
+
+    <div class="sec-head"><h2 style="font-size:1.3rem;">Categorias</h2><p></p></div>
+    <div class="beauty-cats" id="beautyCats"></div>
+
+    <div class="sec-head" id="beautyAiSection"><h2 style="font-size:1.3rem;">✨ Experimente com IA</h2><p>Reaproveita a mesma foto e o mesmo backend de IA do provador virtual.</p></div>
+    <div class="flow" style="margin-bottom:1rem;">
+      <div class="dropzone" id="beautyPhotoZone">
+        <input type="file" accept="image/*" id="beautyPhotoGallery" class="vis-hidden-file" onchange="handleBeautyPhoto(event)">
+        <input type="file" accept="image/*" capture="user" id="beautyPhotoCamera" class="vis-hidden-file" onchange="handleBeautyPhoto(event)">
+        <div id="beautyPhotoContent">
+          <div class="hint">SUA FOTO</div>
+          <div style="display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; margin-top:.6rem;">
+            <button class="btn btn-ghost" onclick="event.stopPropagation(); document.getElementById('beautyPhotoCamera').click()">TIRAR FOTO</button>
+            <button class="btn btn-ghost" onclick="event.stopPropagation(); document.getElementById('beautyPhotoGallery').click()">ENVIAR FOTO</button>
+          </div>
+        </div>
+      </div>
+      <div class="arrow">+</div>
+      <div class="dropzone">
+        <div class="hint">PRODUTO ESCOLHIDO</div>
+        <div id="beautySelectedProduct" style="font-size:.85rem; color:var(--silver);">Nenhum produto selecionado ainda — escolha um em "Trending Now".</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-bottom:2.5rem;">
+      <button class="btn btn-primary" onclick="generateBeautyAI()">GERAR VISUALIZAÇÃO</button>
+    </div>
+    <div class="result-panel" id="beautyResult" style="margin-bottom:2.5rem;"><div class="hint">Sua visualização aparecerá aqui</div></div>
+
+    <div class="sec-head" id="beautyTrending"><h2 style="font-size:1.3rem;">🔥 Trending Now</h2><p></p></div>
+    <div class="grid" id="beautyProducts" style="margin-bottom:2.5rem;"></div>
+
+    <div class="sec-head"><h2 style="font-size:1.3rem;">👗 + 💄 Look Completo</h2><p>Combine roupas do closet com o produto de beleza escolhido.</p></div>
+    <div style="text-align:center; margin-bottom:2.5rem;">
+      <button class="btn btn-ghost" onclick="generateFullBeautyLook()">GERAR LOOK COMPLETO</button>
+    </div>
+
+    <div class="sec-head"><h2 style="font-size:1.3rem;">🛍️ Lojas Parceiras</h2><p></p></div>
+    <div class="plan-cards" id="beautyStores" style="margin-bottom:2.5rem;"></div>
+
+    <div class="sec-head"><h2 style="font-size:1.3rem;">Meus Favoritos (Beauty)</h2><p></p></div>
+    <div class="grid" id="beautyFavs"></div>
+  </section>
+
+  <!-- BEAUTY PRODUCT MODAL -->
+  <div class="overlay" id="beautyProductModal">
+    <div class="modal" id="beautyProductBody"></div>
+  </div>
+
+</main>
+
+<!-- VESTRA AI ORB: avatar de voz móvel -->
+<div class="orb-menu" id="orbMenu" aria-hidden="true">
+  <div class="orb-menu-head">
+    <div><strong>VESTRA AI</strong><span id="orbMenuState">Pronta para conversar</span></div>
+    <button class="orb-close" type="button" onclick="closeOrbMenu()">×</button>
+  </div>
+  <button class="orb-action primary" id="orbMicToggle" type="button" onclick="toggleMicrophone()">
+    <span class="orb-action-icon">🎙</span><span><b>Microfone</b><small id="orbMicLabel">Desligado</small></span><i id="orbMicDot"></i>
+  </button>
+  <div class="orb-menu-row">
+    <button class="orb-mini" type="button" onclick="stopSpeaking()">🔇 Parar voz</button>
+    <select id="orbVoiceSelect" class="voice-select" onchange="setVoicePreference(this.value); syncOrbMenu()">
+      <option value="female">♀ Feminina</option><option value="male">♂ Masculina</option>
+    </select>
+  </div>
+  <div class="orb-hint">Fale naturalmente. A VESTRA pode abrir páginas, usar seu closet e controlar o provador.</div>
+</div>
+<button id="vestraOrb" class="vestra-orb" type="button" aria-label="Abrir controles da VESTRA AI">
+  <span class="orb-core"></span><span class="orb-ring"></span><span class="orb-status" id="orbStatus">VESTRA</span>
+</button>
+
+<footer>VESTRA — Fashion × AI × Digital Wardrobe</footer>
+
+<!-- ADD PIECE MODAL -->
+<div class="overlay" id="pieceModal">
+  <div class="modal">
+    <h3>Adicionar peça</h3>
+    <input type="file" accept="image/*" id="pieceImgInput" class="vis-hidden-file" onchange="previewPieceImg(event)">
+    <div class="field">
+      <label>Imagem</label>
+      <div class="dropzone" style="min-height:140px" onclick="document.getElementById('pieceImgInput').click()">
+        <img id="pieceImgPreview" style="display:none; max-height:120px;">
+        <span class="hint" id="pieceImgHint">Toque para enviar foto</span>
+      </div>
+    </div>
+    <div class="field"><label>Nome</label><input id="p-name" placeholder="Ex: Jaqueta preta"></div>
+    <div class="field-row">
+      <div class="field"><label>Categoria</label>
+        <select id="p-cat">
+          <option>Tops</option><option>Camisetas</option><option>Blusas</option><option>Calças</option>
+          <option>Saias</option><option>Vestidos</option><option>Jaquetas</option><option>Casacos</option>
+          <option>Sapatos</option><option>Bolsas</option><option>Acessórios</option>
+        </select>
+      </div>
+      <div class="field"><label>Cor</label><input id="p-color" placeholder="Ex: Preto"></div>
+    </div>
+    <div class="field"><label>Tamanho</label><input id="p-size" placeholder="Ex: M"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">CANCELAR</button>
+      <button class="btn btn-primary" onclick="savePiece()">SALVAR PEÇA</button>
+    </div>
+  </div>
+</div>
+
+<!-- PICKER MODAL (used by fitting room & look creator) -->
+<div class="overlay" id="pickerModal">
+  <div class="modal">
+    <h3>Escolher peças</h3>
+    <div class="picker" id="pickerList"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">CANCELAR</button>
+      <button class="btn btn-primary" onclick="confirmPicker()">CONFIRMAR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CATS=["Tops","Camisetas","Blusas","Calças","Saias","Vestidos","Jaquetas","Casacos","Sapatos","Bolsas","Acessórios"];
+let closet=JSON.parse(localStorage.getItem('vestra_closet')||'[]');
+let looks=JSON.parse(localStorage.getItem('vestra_looks')||'[]');
+let profile=JSON.parse(localStorage.getItem('vestra_profile')||'{}');
+let activeFilter='Todos';
+let pickerTarget=null; // 'fitting' | 'look'
+let pickerSelected=[];
+let fittingSelected=[];
+let lookSlots=[null,null,null,null,null];
+let userPhoto=null;
+let tempPieceImg=null;
+
+function persist(){ localStorage.setItem('vestra_closet',JSON.stringify(closet)); localStorage.setItem('vestra_looks',JSON.stringify(looks)); localStorage.setItem('vestra_profile',JSON.stringify(profile)); }
+
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+  if(v==='profile') renderProfile();
+  if(v==='fitting') refreshCreditsHint();
+  if(v==='beauty'){ renderBeautyCats(); renderBeautyProducts(); renderBeautyStores(); renderBeautyFavs(); }
+  if(v==='suporte') renderFaq();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('tabs').addEventListener('click',e=>{
+  if(e.target.tagName==='BUTTON') showView(e.target.dataset.view);
+});
+
+/* ---------- CLOSET ---------- */
+function renderFilters(){
+  const f=document.getElementById('filters');
+  f.innerHTML='';
+  ['Todos',...CATS].forEach(c=>{
+    const b=document.createElement('button');
+    b.className='chip'+(c===activeFilter?' active':'');
+    b.textContent=c;
+    b.onclick=()=>{activeFilter=c; renderCloset();};
+    f.appendChild(b);
+  });
+}
+let aiClosetQuery='';
+function renderCloset(){
+  renderFilters();
+  const grid=document.getElementById('closetGrid');
+  grid.innerHTML='';
+  const addCard=document.createElement('div');
+  addCard.className='add-card';
+  addCard.innerHTML='<div class="plus">+</div><div>Adicionar peça</div>';
+  addCard.onclick=openAddPiece;
+  grid.appendChild(addCard);
+  const q=(aiClosetQuery||'').toLowerCase().trim();
+  const items=closet.filter(p=>(activeFilter==='Todos'||p.cat===activeFilter) && (!q || [p.name,p.color,p.cat,p.size].some(v=>String(v||'').toLowerCase().includes(q))));
+  items.forEach(p=>{
+    const card=document.createElement('div');
+    card.className='piece';
+    card.innerHTML=`
+      <div class="actions">
+        <button class="icon-btn fav ${p.fav?'on':''}" onclick="toggleFav('${p.id}')">♥</button>
+        <button class="icon-btn" onclick="deletePiece('${p.id}')">✕</button>
+      </div>
+      <div class="thumb">${p.img?`<img src="${p.img}">`:`<div class="placeholder">${p.name}</div>`}</div>
+      <div class="meta"><h4>${p.name}</h4><span>${p.cat} · ${p.color||'—'} · ${p.size||'—'}</span>
+        <button class="del-link" onclick="deletePiece('${p.id}')">Excluir peça</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+function toggleFav(id){ const p=closet.find(x=>x.id===id); p.fav=!p.fav; persist(); renderCloset(); }
+function deletePiece(id){ closet=closet.filter(x=>x.id!==id); persist(); renderCloset(); }
+
+function openAddPiece(){ tempPieceImg=null; document.getElementById('pieceImgPreview').style.display='none'; document.getElementById('pieceImgHint').style.display='block';
+  ['p-name','p-color','p-size'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pieceModal').classList.add('active'); }
+function closeModal(){ document.getElementById('pieceModal').classList.remove('active'); document.getElementById('pickerModal').classList.remove('active'); }
+function previewPieceImg(e){ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{ tempPieceImg=r.result; const img=document.getElementById('pieceImgPreview'); img.src=tempPieceImg; img.style.display='block'; document.getElementById('pieceImgHint').style.display='none'; }; r.readAsDataURL(f); }
+function savePiece(){
+  const name=document.getElementById('p-name').value.trim()||'Peça sem nome';
+  closet.push({id:'p'+Date.now(), name, cat:document.getElementById('p-cat').value, color:document.getElementById('p-color').value, size:document.getElementById('p-size').value, img:tempPieceImg, fav:false});
+  persist(); closeModal(); renderCloset();
+}
+
+/* ---------- PICKER (shared) ---------- */
+function openPicker(target){
+  pickerTarget=target; pickerSelected = target==='fitting'? [...fittingSelected] : lookSlots.filter(Boolean).map(p=>p.id);
+  const list=document.getElementById('pickerList'); list.innerHTML='';
+  if(closet.length===0){ list.innerHTML='<div class="empty">Seu closet está vazio. Adicione peças primeiro.</div>'; }
+  closet.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='pchip'+(pickerSelected.includes(p.id)?' sel':'');
+    el.innerHTML=`<div class="sw">${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;border-radius:3px">`:p.name.slice(0,10)}</div>${p.name}`;
+    el.onclick=()=>{ const i=pickerSelected.indexOf(p.id); if(i>-1)pickerSelected.splice(i,1); else pickerSelected.push(p.id); el.classList.toggle('sel'); };
+    list.appendChild(el);
+  });
+  document.getElementById('pickerModal').classList.add('active');
+}
+function openFittingPicker(){ openPicker('fitting'); }
+function openLookPicker(){ openPicker('look'); }
+function confirmPicker(){
+  const chosen=closet.filter(p=>pickerSelected.includes(p.id));
+  if(pickerTarget==='fitting'){ fittingSelected=chosen; renderFittingSelected(); }
+  else { lookSlots=[null,null,null,null,null]; chosen.slice(0,5).forEach((p,i)=>lookSlots[i]=p); renderLookSlots(); }
+  closeModal();
+}
+
+/* ---------- FITTING ROOM ---------- */
+function handlePhoto(e){ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{ userPhoto=r.result;
+    document.getElementById('photoContent').innerHTML=`<img src="${userPhoto}" style="max-height:230px;max-width:100%;border-radius:3px;margin-bottom:.8rem">
+      <div style="display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center;">
+        <button class="btn btn-ghost" onclick="event.stopPropagation(); document.getElementById('photoInputCamera').click()">TIRAR OUTRA</button>
+        <button class="btn btn-ghost" onclick="event.stopPropagation(); document.getElementById('photoInputGallery').click()">TROCAR FOTO</button>
+      </div>`;
+  }; r.readAsDataURL(f); }
+function renderFittingSelected(){
+  const box=document.getElementById('fittingSelected'); box.innerHTML='';
+  fittingSelected.forEach((p,idx)=>{
+    const t=document.createElement('div'); t.className='tag';
+    t.innerHTML=`${p.name} <button onclick="removeFittingAt(${idx})">✕</button>`;
+    box.appendChild(t);
+  });
+}
+function removeFittingAt(idx){ fittingSelected.splice(idx,1); renderFittingSelected(); }
+function handleGarmentUpload(e){
+  const files=Array.from(e.target.files||[]);
+  let pending=files.length;
+  if(!pending) return;
+  files.forEach(f=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      fittingSelected.push({id:'u'+Date.now()+Math.random().toString(36).slice(2), name:f.name.slice(0,18)||'Roupa', img:r.result});
+      renderFittingSelected();
+    };
+    r.readAsDataURL(f);
+  });
+  e.target.value='';
+}
+/* ---------- VESTRA CONFIG + AI FITTING ROOM ----------
+   As chaves secretas ficam SOMENTE no servidor/Vercel. O HTML usa rotas /api/*.
+   Se a rota ainda não existir, a interface continua funcionando em modo local.
+*/
+const VESTRA_CONFIG={
+  fitEndpoint:'/api/fit',
+  stylistEndpoint:'/api/stylist',
+  aiEndpoint:'/api/stylist',
+  paymentEndpoint:'/api/payment/create',
+  appVersion:'2.0'
+};
+
+function planCredits(){
+  const pl=PLANS.find(p=>p.id===profile.plan)||PLANS[0];
+  return {plan:pl, remaining: profile.credits ?? pl.credits};
+}
+function refreshCreditsHint(){
+  const el=document.getElementById('creditsHint'); if(!el) return;
+  const {plan,remaining}=planCredits();
+  el.textContent = remaining>=9999 ? `Plano ${plan.name} · gerações ilimitadas` : `Plano ${plan.name} · ${remaining} geração(ões) restante(s) neste ciclo`;
+}
+function rememberFitResult(url){
+  if(!url) return;
+  profile.generationHistory=profile.generationHistory||[];
+  profile.generationHistory.unshift({id:'g'+Date.now(),url,date:new Date().toISOString()});
+  profile.generationHistory=profile.generationHistory.slice(0,12);
+  persist();
+}
+function safeUrl(url){
+  try{const u=new URL(url,location.href); return ['http:','https:','data:','blob:'].includes(u.protocol)?u.href:'';}catch(e){return '';}
+}
+
+async function generateFitting(){
+  const panel=document.getElementById('fittingResult');
+  if(!userPhoto){ panel.innerHTML='<div class="hint">Envie sua foto para continuar.</div>'; return; }
+  if(fittingSelected.length===0){ panel.innerHTML='<div class="hint">Escolha ou envie ao menos uma peça.</div>'; return; }
+  const {remaining}=planCredits();
+  if(remaining<=0){
+    panel.innerHTML='<div class="hint">Você usou todas as gerações do seu plano neste ciclo.</div><button class="btn btn-primary" style="margin-top:1rem" onclick="showView(\'plans\')">VER PLANOS</button>'; return;
+  }
+  const steps=['Preparando seu look...','Analisando as peças...','Criando sua visualização...'];
+  let i=0;
+  panel.innerHTML=`<div class="spinner"></div><div class="gen-status" id="genStatus">${steps[0]}</div>`;
+  const statusIv=setInterval(()=>{i=(i+1)%steps.length;const e=document.getElementById('genStatus');if(e)e.textContent=steps[i];},1300);
+  try{
+    const res=await fetch(VESTRA_CONFIG.fitEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      userId:profile.id||'anon',personImage:userPhoto,garmentImages:fittingSelected.map(p=>p.img).filter(Boolean),profile:{measures:profile.measures||{},styleMemory:profile.styleMemory||{}}
+    })});
+    const data=await res.json().catch(()=>({}));
+    clearInterval(statusIv);
+    if(!res.ok||!data.imageUrl) throw new Error(data.error||'O servidor de IA não retornou uma imagem.');
+    const url=safeUrl(data.imageUrl); if(!url) throw new Error('A URL da imagem retornada não é válida.');
+    panel.innerHTML=`<img src="${url}" style="max-height:320px;max-width:100%;border-radius:3px;object-fit:contain"><div class="gen-status">Seu look está pronto.</div><div class="result-actions"><a class="btn btn-ghost" href="${url}" target="_blank" rel="noopener">ABRIR IMAGEM</a><button class="btn btn-primary" onclick="saveGeneratedLook('${url.replace(/'/g,"%27")}')">SALVAR RESULTADO</button></div>`;
+    rememberFitResult(url);
+    if((profile.credits??9999)<9999){profile.credits=Math.max(0,(profile.credits??0)-1);persist();refreshCreditsHint();}
+  }catch(err){
+    clearInterval(statusIv);
+    const msg=err&&err.message?err.message:'Erro desconhecido.';
+    panel.innerHTML=`<div class="hint">Não foi possível gerar agora.</div><div class="hint" style="font-size:.78rem;max-width:360px;margin-top:.4rem;">${msg}</div><button class="btn btn-primary" style="margin-top:1rem" onclick="generateFitting()">TENTAR NOVAMENTE</button>`;
+  }
+}
+function saveGeneratedLook(url){
+  const u=safeUrl(url); if(!u)return;
+  profile.generationHistory=profile.generationHistory||[];
+  if(!profile.savedGenerations)profile.savedGenerations=[];
+  profile.savedGenerations.unshift({url:u,date:new Date().toISOString()});
+  profile.savedGenerations=profile.savedGenerations.slice(0,20); persist(); alert('Resultado salvo no seu perfil.');
+}
+
+/* ---------- LOOK CREATOR ---------- */
+function renderLookSlots(){
+  const wrap=document.getElementById('lookSlots'); wrap.innerHTML='';
+  lookSlots.forEach((p,idx)=>{
+    const s=document.createElement('div'); s.className='slot'+(p?' filled':'');
+    if(p){ s.innerHTML=`<button class="icon-btn rm" onclick="removeSlot(${idx})">✕</button>${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;border-radius:3px">`:`<div class="add-label">${p.name}</div>`}`; }
+    else{ s.innerHTML=`<div class="add-label">Vazio</div>`; s.onclick=()=>openLookPicker(); }
+    wrap.appendChild(s);
+  });
+}
+function removeSlot(i){ lookSlots[i]=null; renderLookSlots(); }
+function saveLook(){
+  const pieces=lookSlots.filter(Boolean);
+  if(pieces.length===0) return;
+  looks.push({id:'l'+Date.now(), pieces:pieces.map(p=>p.id)});
+  persist(); alert('Look salvo em My Profile.');
+}
+function tryOnLook(){
+  const pieces=lookSlots.filter(Boolean);
+  if(pieces.length===0){ alert('Adicione peças ao look primeiro.'); return; }
+  fittingSelected=pieces; showView('fitting'); renderFittingSelected();
+}
+
+/* ---------- VESTRA AI STYLIST ---------- */
+function addMsg(text,who,speak=false){
+  const box=document.getElementById('chatMsgs'); const m=document.createElement('div'); m.className='msg '+who; m.textContent=text; box.appendChild(m); box.scrollTop=box.scrollHeight;
+  if(speak&&who==='ai') speakText(text); return m;
+}
+function getStyleMemory(){
+  profile.styleMemory=profile.styleMemory||{styles:[],colors:[],occasions:[],notes:[]}; return profile.styleMemory;
+}
+function rememberStyle(text){
+  const m=getStyleMemory(); const t=text.toLowerCase();
+  const styles=[['dark','dark'],['gótico','gótico'],['goth','goth'],['cyber','cyber/futurista'],['futur','cyber/futurista'],['street','streetwear'],['elegante','elegante'],['minimal','minimalista'],['romântico','romântico']];
+  const colors=['preto','prata','branco','vermelho','rosa','roxo','azul','verde'];
+  styles.forEach(([key,val])=>{if(t.includes(key)&&!m.styles.includes(val))m.styles.push(val);});
+  colors.forEach(c=>{if(t.includes(c)&&!m.colors.includes(c))m.colors.push(c);});
+  if(t.includes('festa')&&!m.occasions.includes('festa'))m.occasions.push('festa');
+  if(t.includes('trabalho')&&!m.occasions.includes('trabalho'))m.occasions.push('trabalho');
+  if(t.includes('encontro')&&!m.occasions.includes('encontro'))m.occasions.push('encontro');
+  m.notes=(m.notes||[]).concat([text]).slice(-8); persist();
+}
+function memorySummary(){const m=getStyleMemory();const a=[];if(m.styles.length)a.push('estilos: '+m.styles.slice(-5).join(', '));if(m.colors.length)a.push('cores: '+m.colors.slice(-5).join(', '));if(m.occasions.length)a.push('ocasiões: '+m.occasions.slice(-4).join(', '));return a.length?a.join(' · '):'ainda não tenho preferências suficientes';}
+function forgetStyleMemory(){profile.styleMemory={styles:[],colors:[],occasions:[],notes:[]};persist();addMsg('Apaguei as preferências de estilo que a VESTRA tinha aprendido nesta conta.','ai',true);}
+function executeVestraCommand(text){
+  const t=text.toLowerCase();
+  const commands=[['closet',['abrir closet','meu closet','guarda roupa'],'closet'],['fitting',['provador','experimentar','fitting room'],'fitting'],['look',['criar look','montar look','meu look'],'look'],['plans',['planos','assinar','assinatura'],'plans'],['profile',['meu perfil','perfil'],'profile'],['beauty',['beauty','beleza','maquiagem'],'beauty'],['measures',['medidas','tamanho'],'measures']];
+  for(const [name,keys,view] of commands){if(keys.some(k=>t.includes(k))){showView(view);return `Abri ${name==='fitting'?'o provador':name==='closet'?'seu closet':name==='look'?'o criador de looks':name}.`;}}
+  return '';
+}
+function localStylistReply(text){
+  const t=text.toLowerCase(),m=getStyleMemory();
+  const cmd=executeVestraCommand(text); if(cmd)return cmd+' Posso continuar conversando com você enquanto a VESTRA fica aberta.';
+  if(t.includes('festa'))return `Para uma festa, eu começaria com uma peça de destaque e acessórios metálicos. ${m.styles.length?'Vou considerar seu estilo '+m.styles.slice(-2).join(' e ')+'.':''}`;
+  if(t.includes('dark'))return 'Vou considerar uma base preta, camadas e um ponto de brilho. Se você gostar desse estilo, posso guardar essa preferência para as próximas sugestões.';
+  if(t.includes('futur')||t.includes('cyber'))return 'Para um visual futurista: silhueta marcada, preto/prata e um detalhe holográfico. Posso usar isso como referência nas próximas conversas.';
+  if(t.includes('closet')||t.includes('roup')){const names=closet.slice(0,6).map(p=>p.name).filter(Boolean);return names.length?'No seu closet eu vejo: '+names.join(', ')+'. Posso montar uma combinação com essas peças.':'Seu closet ainda está vazio. Adicione algumas peças e eu consigo trabalhar com elas.';}
+  if(t.includes('tamanho'))return 'Posso usar suas medidas salvas para orientar o caimento, mas tamanho varia por marca e peça; trate como estimativa.';
+  if(t.includes('combina'))return 'Posso combinar por cor, textura, silhueta e ocasião. Me diga a peça principal ou peça para eu usar seu closet.';
+  if(t.includes('meu estilo')||t.includes('gosto'))return 'Até agora, minha memória de estilo está em: '+memorySummary()+'. Diga algo como “gosto de preto e cyber” e eu vou guardar essa preferência.';
+  return 'Entendi. Posso ajudar com looks, seu closet, provador, medidas e Beauty. Quanto mais você me contar sobre o que gosta, mais personalizadas ficam minhas sugestões.';
+}
+async function askStylistAPI(text){
+  try{
+    const history=[...document.querySelectorAll('#chatMsgs .msg')].slice(-12).map(m=>({role:m.classList.contains('user')?'user':'assistant',content:m.textContent}));
+    const res=await fetch(VESTRA_CONFIG.aiEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history,profile:{name:profile.name||'',styleMemory:getStyleMemory(),measures:profile.measures||{}},closet:closet.slice(0,60).map(p=>({id:p.id,name:p.name,category:p.cat||p.category,color:p.color,size:p.size,fav:!!p.fav,img:!!p.img}))})});
+    const data=await res.json().catch(()=>({}));
+    if(res.ok&&data.reply)return data;
+    throw new Error(data.error||'A VESTRA AI ainda não está conectada.');
+  }catch(e){
+    return {reply:localStylistReply(text),actions:[]};
+  }
+}
+function executeAIAction(action){
+  if(!action||!action.type)return;
+  const ids=Array.isArray(action.pieceIds)?action.pieceIds:[];
+  if(action.type==='open_view'&&action.view){showView(action.view);return;}
+  if(action.type==='filter_closet'){
+    showView('closet');
+    setTimeout(()=>{
+      const q=(action.query||'').toLowerCase().trim(), cat=(action.category||'').toLowerCase().trim();
+      const grid=document.getElementById('closetGrid'); if(!grid)return;
+      aiClosetQuery=q||cat||'';
+      if(cat){const match=CATS.find(c=>c.toLowerCase().includes(cat));if(match)activeFilter=match;}
+      renderCloset();
+    },30); return;
+  }
+  if(action.type==='favorite_piece'){
+    ids.forEach(id=>{const p=closet.find(x=>x.id===id);if(p)p.fav=!p.fav;});persist();renderCloset();return;
+  }
+  if(action.type==='clear_look'){lookSlots=[null,null,null,null,null];renderLookSlots();showView('look');return;}
+  if(action.type==='create_look'){
+    const chosen=closet.filter(p=>ids.includes(p.id));
+    lookSlots=[null,null,null,null,null];chosen.slice(0,5).forEach((p,i)=>lookSlots[i]=p);renderLookSlots();showView('look');return;
+  }
+  if(action.type==='start_fitting'){
+    const chosen=closet.filter(p=>ids.includes(p.id));fittingSelected=chosen;showView('fitting');renderFittingSelected();return;
+  }
+  if(action.type==='save_look'){saveLook();return;}
+}
+async function sendChat(){
+  const input=document.getElementById('chatInput'); const text=input.value.trim(); if(!text)return;
+  addMsg(text,'user'); input.value=''; rememberStyle(text);
+  const state=document.getElementById('aiState');if(state)state.innerHTML='VESTRA AI <b>pensando...</b>';
+  setOrbState('speaking','PENSANDO');
+  const result=await askStylistAPI(text);
+  if(state)state.innerHTML='VESTRA AI <b>online</b> · memória: '+memorySummary();
+  (result.actions||[]).forEach(executeAIAction);
+  addMsg(result.reply||'Estou aqui. O que você quer fazer?', 'ai', true);
+}
+function sendSuggestion(text){document.getElementById('chatInput').value=text;sendChat();}
+
+/* VESTRA VOICE + AI ORB */
+let recognition=null,voiceListening=false,availableVoices=[],orbMenuOpen=false;
+const VOICE_PREF_KEY='vestra_voice_preference';
+function loadVoicePreference(){const pref=localStorage.getItem(VOICE_PREF_KEY)||'female';const a=document.getElementById('voiceSelect'),b=document.getElementById('orbVoiceSelect');if(a)a.value=pref;if(b)b.value=pref;}
+function setVoicePreference(pref){localStorage.setItem(VOICE_PREF_KEY,pref||'female');const b=document.getElementById('orbVoiceSelect');if(b)b.value=pref;const a=document.getElementById('voiceSelect');if(a)a.value=pref;}
+function refreshVoices(){if('speechSynthesis' in window)availableVoices=window.speechSynthesis.getVoices()||[];}
+function chooseVestraVoice(pref){const pt=availableVoices.filter(v=>/^pt-BR$/i.test(v.lang)||/^pt[-_]/i.test(v.lang));const pool=pt.length?pt:availableVoices;if(!pool.length)return null;const gender=pref==='male'?/male|homem|man|masc|daniel|ricardo|felipe|ant[oô]nio|jo[aã]o/i:/female|mulher|woman|femin|maria|luciana|fernanda|camila/i;return pool.find(v=>gender.test(v.name))||pool[0];}
+function setOrbState(state,label){const orb=document.getElementById('vestraOrb'),st=document.getElementById('orbStatus');if(!orb)return;orb.classList.remove('listening','speaking');if(state)orb.classList.add(state);if(st)st.textContent=label||'VESTRA';syncOrbMenu();}
+function speakText(text){if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();refreshVoices();const pref=localStorage.getItem(VOICE_PREF_KEY)||'female',u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=.97;u.pitch=pref==='female'?1.04:.92;const v=chooseVestraVoice(pref);if(v)u.voice=v;u.onstart=()=>{setOrbState('speaking','FALANDO');};u.onend=()=>{if(!voiceListening)setOrbState('','VESTRA');};window.speechSynthesis.speak(u);}
+function stopSpeaking(){if('speechSynthesis'in window)window.speechSynthesis.cancel();if(!voiceListening)setOrbState('','VESTRA');}
+function testSelectedVoice(){speakText('Olá! Eu sou a VESTRA. Estou pronta para conversar com você e controlar seu guarda-roupa.');}
+function openOrbMenu(){const m=document.getElementById('orbMenu');if(!m)return;orbMenuOpen=true;m.classList.add('open');m.setAttribute('aria-hidden','false');syncOrbMenu();}
+function closeOrbMenu(){const m=document.getElementById('orbMenu');if(!m)return;orbMenuOpen=false;m.classList.remove('open');m.setAttribute('aria-hidden','true');}
+function toggleOrbMenu(){orbMenuOpen?closeOrbMenu():openOrbMenu();}
+function syncOrbMenu(){const label=document.getElementById('orbMicLabel'),dot=document.getElementById('orbMicDot'),state=document.getElementById('orbMenuState');if(label)label.textContent=voiceListening?'Ligado · ouvindo':'Desligado';if(dot)dot.classList.toggle('on',voiceListening);if(state)state.textContent=voiceListening?'Microfone ligado · fale com a VESTRA':'Pronta para conversar';}
+function toggleMicrophone(){if(voiceListening){recognition&&recognition.stop();return;}startVoiceRecognition();}
+function startVoiceRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Para usar o microfone, abra o VESTRA no Chrome e permita o acesso ao microfone.');return;}stopSpeaking();recognition=new SR();recognition.lang='pt-BR';recognition.interimResults=false;recognition.continuous=false;recognition.maxAlternatives=1;recognition.onstart=()=>{voiceListening=true;setOrbState('listening','OUVINDO');syncOrbMenu();const t=document.getElementById('voiceModeText');if(t)t.textContent='Estou ouvindo você';};recognition.onresult=e=>{const text=e.results?.[0]?.[0]?.transcript?.trim();if(text){const input=document.getElementById('chatInput');if(input)input.value=text;sendChat();}};recognition.onerror=()=>{voiceListening=false;syncOrbMenu();setOrbState('','VESTRA');};recognition.onend=()=>{voiceListening=false;syncOrbMenu();if(document.getElementById('orbStatus')?.textContent==='OUVINDO')setOrbState('','VESTRA');};try{recognition.start();}catch(e){voiceListening=false;syncOrbMenu();}}
+if('speechSynthesis'in window){refreshVoices();window.speechSynthesis.onvoiceschanged=refreshVoices;}
+window.addEventListener('DOMContentLoaded',()=>{loadVoicePreference();syncOrbMenu();});
+
+/* Orb suave e arrastável: toque abre controles; arraste move com interpolação suave. */
+(function initVestraOrb(){
+  const orb=document.getElementById('vestraOrb');if(!orb)return;let dragging=false,moved=false,startX=0,startY=0,startL=0,startT=0,targetX=0,targetY=0,raf=0;
+  function animate(){if(!dragging)return;const r=orb.getBoundingClientRect();const x=r.left+(targetX-r.left)*.28,y=r.top+(targetY-r.top)*.28;orb.style.left=x+'px';orb.style.top=y+'px';orb.style.right='auto';orb.style.bottom='auto';raf=requestAnimationFrame(animate);}
+  orb.addEventListener('pointerdown',e=>{dragging=true;moved=false;startX=e.clientX;startY=e.clientY;const r=orb.getBoundingClientRect();startL=r.left;startT=r.top;targetX=startL;targetY=startT;orb.setPointerCapture?.(e.pointerId);cancelAnimationFrame(raf);animate();e.preventDefault();});
+  orb.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-startX,dy=e.clientY-startY;if(Math.abs(dx)+Math.abs(dy)>8)moved=true;targetX=Math.max(5,Math.min(window.innerWidth-orb.offsetWidth-5,startL+dx));targetY=Math.max(5,Math.min(window.innerHeight-orb.offsetHeight-5,startT+dy));e.preventDefault();});
+  orb.addEventListener('pointerup',e=>{if(!dragging)return;dragging=false;cancelAnimationFrame(raf);orb.style.left=targetX+'px';orb.style.top=targetY+'px';orb.releasePointerCapture?.(e.pointerId);if(!moved)toggleOrbMenu();});
+  orb.addEventListener('pointercancel',()=>{dragging=false;cancelAnimationFrame(raf);});
+})();
+document.addEventListener('pointerdown',e=>{if(orbMenuOpen&&!e.target.closest('#orbMenu')&&!e.target.closest('#vestraOrb'))closeOrbMenu();});
+
+/* ---------- MEASURES ---------- */
+function loadMeasures(){
+  const m=profile.measures||{};
+  ['altura','busto','cintura','quadril','ombros','tam'].forEach(k=>{ const el=document.getElementById('m-'+k); if(el && m[k]!==undefined) el.value=m[k]; });
+  const pc=profile.pieceMeasures||{};
+  ['comp','larg','cint','quad','manga','outras'].forEach(k=>{ const el=document.getElementById('p-'+k); if(el && pc[k]!==undefined) el.value=pc[k]; });
+}
+function saveMeasures(){
+  profile.measures={altura:val('m-altura'),busto:val('m-busto'),cintura:val('m-cintura'),quadril:val('m-quadril'),ombros:val('m-ombros'),tam:val('m-tam')};
+  profile.pieceMeasures={comp:val('p-comp'),larg:val('p-larg'),cint:val('p-cint'),quad:val('p-quad'),manga:val('p-manga'),outras:val('p-outras')};
+  persist(); alert('Medidas salvas.');
+}
+function val(id){ return document.getElementById(id).value; }
+
+/* ---------- PLANS & PAYMENTS ----------
+   IMPORTANTE (produção): toda cobrança real deve ser feita no backend.
+   O frontend nunca deve guardar dados de cartão nem chaves secretas do gateway.
+   Fluxo real: 1) frontend chama seu backend -> 2) backend cria a cobrança no
+   gateway (ex: Stripe, Pagar.me, Mercado Pago) usando a chave secreta em uma
+   variável de ambiente do servidor -> 3) gateway notifica o backend via
+   webhook quando o pagamento é aprovado -> 4) só então o backend libera o
+   plano no banco de dados. A versão atual chama o backend em /api/payment/create. Sem esse endpoint, pagamentos reais ficam bloqueados para evitar falsas confirmações. */
+const PLANS=[
+  {id:'free',   name:'FREE', price:0, credits:3, voiceMinutes:5, cycle:'mensal', benefits:['3 gerações de IA por mês','Até 20 peças no closet','AI Stylist básico','5 min de voz por mês']},
+  {id:'pro',    name:'PRO', price:29.90, credits:25, voiceMinutes:30, cycle:'mensal', benefits:['25 gerações de IA por mês','Guarda-roupa ilimitado','AI Stylist completo + memória de estilo','30 min de voz por mês','Fila de geração prioritária']},
+  {id:'black',  name:'VESTRA BLACK', price:59.90, credits:60, voiceMinutes:120, cycle:'mensal', benefits:['60 gerações de IA por mês','Guarda-roupa ilimitado','AI Stylist completo + memória avançada','120 min de voz por mês','Acesso antecipado a novos recursos']}
+];
+let checkoutPlan=null, checkoutMethod='pix';
+
+function fmtBRL(v){ return v===0?'Grátis':'R$ '+v.toFixed(2).replace('.',','); }
+
+function renderPlans(){
+  const wrap=document.getElementById('planCards'); wrap.innerHTML='';
+  PLANS.forEach(pl=>{
+    const isCurrent = profile.plan===pl.id;
+    const card=document.createElement('div');
+    card.className='plan-card'+(isCurrent?' current':'');
+    card.innerHTML=`
+      ${isCurrent?'<span class="badge-current">PLANO ATUAL</span>':''}
+      <h3>${pl.name}</h3>
+      <div class="plan-price">${fmtBRL(pl.price)}${pl.price>0?'<span> /mês</span>':''}</div>
+      <ul class="plan-benefits">${pl.benefits.map(b=>`<li>${b}</li>`).join('')}</ul>
+      <button class="btn ${isCurrent?'btn-ghost':'btn-primary'}" ${isCurrent?'disabled':''} onclick="goCheckout('${pl.id}')">${isCurrent?'PLANO ATUAL':(pl.price===0?'USAR GRÁTIS':'ASSINAR')}</button>`;
+    wrap.appendChild(card);
+  });
+}
+
+function goCheckout(planId){
+  checkoutPlan=PLANS.find(p=>p.id===planId); checkoutMethod='pix';
+  if(checkoutPlan.price===0){
+    activatePlan(checkoutPlan,'grátis','—');
+    showView('profile');
+    return;
+  }
+  renderCheckout();
+  showView('checkout');
+}
+
+function renderCheckout(status){
+  const pl=checkoutPlan; if(!pl) return;
+  const body=document.getElementById('checkoutBody');
+  if(status==='success'){
+    body.innerHTML=`
+      <h3 style="font-size:1.2rem;margin-bottom:.8rem;">Pagamento aprovado</h3>
+      <p style="color:var(--silver);font-size:.9rem;margin-bottom:1.4rem;">Seu plano ${pl.name} está ativo. ${pl.credits>=9999?'Gerações ilimitadas liberadas.':'Você tem '+pl.credits+' gerações de IA disponíveis.'} ${pl.voiceMinutes?'Inclui '+pl.voiceMinutes+' min de voz por mês.':''}</p>
+      <button class="btn btn-primary" style="width:100%" onclick="showView('fitting')">VOLTAR AO PROVADOR</button>
+      <button class="btn btn-ghost" style="width:100%;margin-top:.7rem" onclick="showView('profile')">VER MEU PLANO</button>`;
+    return;
+  }
+  if(status==='declined'){
+    body.innerHTML=`
+      <h3 style="font-size:1.2rem;margin-bottom:.8rem;">Pagamento não concluído</h3>
+      <p style="color:var(--silver);font-size:.9rem;margin-bottom:1.4rem;">Não foi possível confirmar o pagamento. Seu plano não foi alterado. Tente novamente ou escolha outra forma de pagamento.</p>
+      <button class="btn btn-primary" style="width:100%" onclick="renderCheckout()">TENTAR NOVAMENTE</button>
+      <button class="btn btn-ghost" style="width:100%;margin-top:.7rem" onclick="showView('plans')">VOLTAR AOS PLANOS</button>`;
+    return;
+  }
+  if(status==='processing'){
+    body.innerHTML=`<div style="text-align:center;padding:2rem 0;"><div class="spinner" style="margin:0 auto 1rem;"></div><div class="gen-status">Confirmando pagamento...</div></div>`;
+    return;
+  }
+  body.innerHTML=`
+    <div class="checkout-row"><span>Plano</span><b>${pl.name}</b></div>
+    <div class="checkout-row"><span>Preço</span><b>${fmtBRL(pl.price)} / ${pl.cycle}</b></div>
+    <div class="checkout-row"><span>Gerações de IA</span><b>${pl.credits>=9999?'Ilimitadas':pl.credits+'/mês'}</b></div>
+    <div class="checkout-row"><span>Cobrança</span><b>Recorrente ${pl.cycle}</b></div>
+    <div style="font-size:.78rem;color:var(--steel);margin:1rem 0 .4rem;">Benefícios incluídos</div>
+    <ul class="plan-benefits" style="margin-bottom:1rem;">${pl.benefits.map(b=>`<li>${b}</li>`).join('')}</ul>
+    <div style="font-size:.78rem;color:var(--steel);margin-bottom:.5rem;">Forma de pagamento</div>
+    <div class="pay-methods" id="payMethods">
+      <div class="chip active" data-m="pix" onclick="setPayMethod('pix')">PIX</div>
+      <div class="chip" data-m="credito" onclick="setPayMethod('credito')">Cartão de crédito</div>
+      <div class="chip" data-m="debito" onclick="setPayMethod('debito')">Cartão de débito</div>
+    </div>
+    <div id="payMethodBody"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:1.2rem" onclick="finalizePayment()">FINALIZAR PAGAMENTO</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.6rem" onclick="showView('plans')">CANCELAR</button>`;
+  renderPayMethodBody();
+}
+function setPayMethod(m){
+  checkoutMethod=m;
+  document.querySelectorAll('#payMethods .chip').forEach(c=>c.classList.toggle('active',c.dataset.m===m));
+  renderPayMethodBody();
+}
+function renderPayMethodBody(){
+  const el=document.getElementById('payMethodBody'); if(!el) return;
+  if(checkoutMethod==='pix'){
+    el.innerHTML=`<div class="pix-box">Um QR Code / código PIX seria gerado aqui pelo gateway de pagamento no momento de finalizar.</div>`;
+  }else{
+    el.innerHTML=`
+      <div class="field"><label>Número do cartão</label><input placeholder="•••• •••• •••• ••••" disabled></div>
+      <div class="field-row">
+        <div class="field"><label>Validade</label><input placeholder="MM/AA" disabled></div>
+        <div class="field"><label>CVV</label><input placeholder="•••" disabled></div>
+      </div>
+      <p class="note">Os dados do cartão são inseridos diretamente na página segura do gateway de pagamento — o VESTRA nunca armazena esses dados.</p>`;
+  }
+}
+async function finalizePayment(){
+  if(!checkoutPlan||checkoutPlan.price<=0)return;
+  renderCheckout('processing');
+  try{
+    const res=await fetch(VESTRA_CONFIG.paymentEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({planId:checkoutPlan.id,method:checkoutMethod,userId:profile.id||'anon'})});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok)throw new Error(data.error||'Gateway de pagamento indisponível.');
+    if(data.checkoutUrl){location.href=data.checkoutUrl;return;}
+    if(data.status==='approved'||data.approved){activatePlan(checkoutPlan,checkoutMethod,fmtBRL(checkoutPlan.price));renderCheckout('success');return;}
+    if(data.status==='pending'){renderCheckout('processing');return;}
+    throw new Error(data.message||'O pagamento não foi confirmado.');
+  }catch(err){
+    renderCheckout('declined');
+    const box=document.querySelector('#checkoutBody p');
+    if(box)box.textContent='O pagamento real ainda não está conectado nesta versão. Conecte o backend do gateway em /api/payment/create para liberar assinaturas reais.';
+  }
+}
+function activatePlan(pl, method, amountLabel){
+  profile.plan=pl.id;
+  profile.planStatus='ativo';
+  profile.credits=pl.credits;
+  const next=new Date(); next.setDate(next.getDate()+30);
+  profile.nextBilling = pl.price>0 ? next.toISOString().slice(0,10) : null;
+  profile.paymentHistory = profile.paymentHistory || [];
+  if(pl.price>0){
+    profile.paymentHistory.unshift({date:new Date().toISOString().slice(0,10), plan:pl.name, amount:amountLabel, method, status:'Aprovado'});
+  }
+  persist();
+}
+function cancelSubscription(){
+  if(!confirm('Cancelar sua assinatura? Você mantém os créditos até a próxima cobrança.')) return;
+  profile.planStatus='cancelado';
+  persist(); renderMyPlan();
+}
+function renderMyPlan(){
+  const el=document.getElementById('myPlanBody'); if(!el) return;
+  const pl=PLANS.find(p=>p.id===profile.plan) || PLANS[0];
+  const status=profile.planStatus || (pl.id==='free'?'ativo':'ativo');
+  const history=profile.paymentHistory||[];
+  el.innerHTML=`
+    <div class="myplan-grid">
+      <div class="stat"><b>${pl.name}</b><span>PLANO ATUAL</span></div>
+      <div class="stat"><b>${status==='cancelado'?'Cancelado':'Ativo'}</b><span>STATUS</span></div>
+      <div class="stat"><b>${profile.nextBilling||'—'}</b><span>PRÓXIMA COBRANÇA</span></div>
+      <div class="stat"><b>${(profile.credits??pl.credits)>=9999?'Ilimitadas':(profile.credits??pl.credits)}</b><span>CRÉDITOS RESTANTES</span></div>
+    </div>
+    <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <button class="btn btn-ghost" onclick="showView('plans')">TROCAR DE PLANO</button>
+      ${pl.id!=='free' && status!=='cancelado' ? `<button class="btn btn-ghost" onclick="cancelSubscription()">CANCELAR ASSINATURA</button>` : ''}
+    </div>
+    <div style="font-size:.78rem;color:var(--steel);margin-bottom:.4rem;">Histórico de pagamentos</div>
+    <div class="history-list">${history.length? history.map(h=>`<div class="hrow"><span>${h.date} · ${h.plan}</span><span>${h.amount} · ${h.method.toUpperCase()} · ${h.status}</span></div>`).join('') : '<div class="empty" style="padding:1rem;">Nenhum pagamento ainda.</div>'}</div>`;
+}
+
+/* ---------- SUPORTE ---------- */
+const FAQ_ITEMS=[
+  {q:'Como funciona o AI Fitting Room?', a:'Você envia sua foto e escolhe peças do closet ou envia fotos de roupas, e a IA gera uma visualização de você usando o look.'},
+  {q:'Quantas gerações de IA eu tenho?', a:'Depende do seu plano. Veja em "Planos" ou em "Meu Plano" no seu perfil quantas gerações restam neste ciclo.'},
+  {q:'Como cancelo minha assinatura?', a:'Vá em "My Profile → Meu Plano" e toque em "Cancelar assinatura". Você mantém os créditos até a próxima cobrança.'},
+  {q:'Meus dados de pagamento ficam salvos no VESTRA?', a:'Não. O pagamento é processado por um gateway seguro; o VESTRA nunca armazena dados de cartão.'}
+];
+function renderFaq(){
+  const el=document.getElementById('faqList'); if(!el) return;
+  el.innerHTML=FAQ_ITEMS.map((f,i)=>`
+    <div class="faq-item" id="faq-${i}">
+      <div class="faq-q" onclick="toggleFaq(${i})"><span>${f.q}</span><span class="sign">+</span></div>
+      <div class="faq-a">${f.a}</div>
+    </div>`).join('');
+}
+function toggleFaq(i){ document.getElementById('faq-'+i).classList.toggle('open'); }
+function sendSupport(){
+  const nome=document.getElementById('sup-nome').value.trim();
+  const email=document.getElementById('sup-email').value.trim();
+  const msg=document.getElementById('sup-msg').value.trim();
+  const status=document.getElementById('supStatus');
+  if(!nome||!email||!msg){ status.textContent='Preencha nome, e-mail e mensagem.'; return; }
+  const tickets=JSON.parse(localStorage.getItem('vestra_support')||'[]');
+  tickets.unshift({nome,email,assunto:document.getElementById('sup-assunto').value,msg,data:new Date().toISOString()});
+  localStorage.setItem('vestra_support',JSON.stringify(tickets));
+  status.textContent='Mensagem registrada. Nossa equipe vai te responder pelo e-mail informado.';
+  ['sup-nome','sup-email','sup-msg'].forEach(id=>document.getElementById(id).value='');
+}
+
+/* ---------- VESTRA BEAUTY ----------
+   Estrutura pensada para, no futuro, ser alimentada por um banco de dados real
+   de produtos de lojas parceiras (id, nome, marca, preço, loja, estoque, etc.)
+   e por uma tabela de comissão para o marketplace. Por enquanto, os itens
+   abaixo são DEMONSTRAÇÃO e marcados como tal na interface — nunca devem ser
+   tratados como produtos reais à venda. */
+const BEAUTY_CATS=[
+  {icon:'💄',name:'Maquiagem'},{icon:'🧴',name:'Skincare'},{icon:'💇',name:'Cabelos'},
+  {icon:'🌸',name:'Perfumes'},{icon:'💅',name:'Unhas'},{icon:'✨',name:'Acessórios'}
+];
+const BEAUTY_PRODUCTS=[
+  {id:'b1', name:'Batom Matte Vestra Red', brand:'Loja Exemplo Beauty', price:59.90, rating:4.6, cat:'Maquiagem', demo:true,
+   desc:'Batom matte de longa duração. Exemplo de estrutura de produto para lojas parceiras.', variations:['Vermelho','Nude','Rosé']},
+  {id:'b2', name:'Sérum Facial Glow', brand:'Loja Exemplo Beauty', price:89.90, rating:4.8, cat:'Skincare', demo:true,
+   desc:'Sérum com ácido hialurônico. Produto de demonstração para ilustrar a estrutura do catálogo.', variations:['30ml','50ml']},
+  {id:'b3', name:'Perfume Holo Aura', brand:'Loja Exemplo Fragrances', price:149.90, rating:4.7, cat:'Perfumes', demo:true,
+   desc:'Fragrância amadeirada com toque metálico. Produto de demonstração.', variations:['50ml','100ml']}
+];
+const BEAUTY_STORES=[
+  {id:'s1', name:'Exemplo Beauty', cats:'Maquiagem · Skincare', demo:true},
+  {id:'s2', name:'Exemplo Fragrances', cats:'Perfumes', demo:true}
+];
+let beautyPhoto=null, beautySelectedProductId=null;
+
+function renderBeautyCats(){
+  const el=document.getElementById('beautyCats'); if(!el) return;
+  el.innerHTML=BEAUTY_CATS.map(c=>`<div class="beauty-cat">${c.icon}<br>${c.name}</div>`).join('');
+}
+function renderBeautyProducts(){
+  const el=document.getElementById('beautyProducts'); if(!el) return;
+  el.innerHTML=BEAUTY_PRODUCTS.map(p=>{
+    const fav=(profile.beautyFavs||[]).includes(p.id);
+    return `<div class="prod-card">
+      <div class="actions"><button class="icon-btn fav ${fav?'on':''}" onclick="toggleBeautyFav('${p.id}')">♥</button></div>
+      <div class="thumb">${p.name}<br><span class="demo-tag">Produto de demonstração</span></div>
+      <div class="meta">
+        <h4>${p.name}</h4><div class="brand">${p.brand}</div>
+        <div class="price">R$ ${p.price.toFixed(2).replace('.',',')}</div>
+        <div class="rating">★ ${p.rating}</div>
+        <div class="btnrow">
+          <button onclick="openBeautyProduct('${p.id}')">VER PRODUTO</button>
+          <button onclick="selectBeautyProduct('${p.id}')">EXPERIMENTAR</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderBeautyStores(){
+  const el=document.getElementById('beautyStores'); if(!el) return;
+  el.innerHTML=BEAUTY_STORES.map(s=>`
+    <div class="store-card">
+      <div class="store-logo">${s.name[0]}</div>
+      <h3 style="font-size:.95rem;">${s.name}</h3>
+      <div style="font-size:.75rem;color:var(--steel);">${s.cats}</div>
+      <span class="demo-tag">Loja de demonstração</span>
+      <button class="btn btn-ghost" onclick="alert('Perfil de loja: em breve, quando lojas parceiras reais forem cadastradas.')">VER LOJA</button>
+    </div>`).join('');
+}
+function renderBeautyFavs(){
+  const el=document.getElementById('beautyFavs'); if(!el) return;
+  const favs=(profile.beautyFavs||[]).map(id=>BEAUTY_PRODUCTS.find(p=>p.id===id)).filter(Boolean);
+  el.innerHTML = favs.length ? favs.map(p=>`<div class="prod-card"><div class="thumb">${p.name}</div><div class="meta"><h4>${p.name}</h4><div class="brand">${p.brand}</div></div></div>`).join('')
+    : '<div class="empty">Nenhum favorito ainda. Toque no ♥ em um produto.</div>';
+}
+function toggleBeautyFav(id){
+  profile.beautyFavs=profile.beautyFavs||[];
+  const i=profile.beautyFavs.indexOf(id);
+  if(i>-1) profile.beautyFavs.splice(i,1); else profile.beautyFavs.push(id);
+  persist(); renderBeautyProducts(); renderBeautyFavs();
+}
+function openBeautyProduct(id){
+  const p=BEAUTY_PRODUCTS.find(x=>x.id===id); if(!p) return;
+  document.getElementById('beautyProductBody').innerHTML=`
+    <h3>${p.name} <span class="demo-tag">Produto de demonstração</span></h3>
+    <p style="color:var(--steel);font-size:.85rem;margin:.8rem 0;">${p.brand}</p>
+    <p style="font-size:.88rem;color:var(--silver);margin-bottom:.8rem;">${p.desc}</p>
+    <div style="font-size:.78rem;color:var(--steel);margin-bottom:.4rem;">Variações</div>
+    <div class="filters" style="margin-bottom:1rem;">${p.variations.map(v=>`<div class="chip">${v}</div>`).join('')}</div>
+    <div class="plan-price" style="font-size:1.3rem;margin-bottom:1rem;">R$ ${p.price.toFixed(2).replace('.',',')}</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">FECHAR</button>
+      <button class="btn btn-primary" onclick="selectBeautyProduct('${p.id}'); closeModal();">EXPERIMENTAR COM IA</button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.6rem" onclick="alert('Comprar: essa etapa será conectada ao marketplace e ao sistema de pagamentos existente futuramente.')">COMPRAR</button>`;
+  document.getElementById('beautyProductModal').classList.add('active');
+}
+function selectBeautyProduct(id){
+  beautySelectedProductId=id;
+  const p=BEAUTY_PRODUCTS.find(x=>x.id===id);
+  document.getElementById('beautySelectedProduct').innerHTML = p ? `<b>${p.name}</b><br>${p.brand}` : 'Nenhum produto selecionado.';
+}
+function handleBeautyPhoto(e){
+  const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+  r.onload=()=>{ beautyPhoto=r.result;
+    document.getElementById('beautyPhotoContent').innerHTML=`<img src="${beautyPhoto}" style="max-height:200px;border-radius:3px;margin-bottom:.6rem">
+      <div style="display:flex;gap:.6rem;justify-content:center;">
+        <button class="btn btn-ghost" onclick="event.stopPropagation(); document.getElementById('beautyPhotoCamera').click()">TIRAR OUTRA</button>
+        <button class="btn btn-ghost" onclick="event.stopPropagation(); document.getElementById('beautyPhotoGallery').click()">TROCAR</button>
+      </div>`;
+  }; r.readAsDataURL(f);
+}
+function generateBeautyAI(){
+  const panel=document.getElementById('beautyResult');
+  if(!beautyPhoto){ panel.innerHTML='<div class="hint">Envie sua foto primeiro.</div>'; return; }
+  if(!beautySelectedProductId){ panel.innerHTML='<div class="hint">Escolha um produto em "Trending Now" antes de gerar.</div>'; return; }
+  // A visualização de maquiagem/beleza com IA ainda não foi implementada no backend.
+  // Quando o endpoint de beleza existir, ele deve reutilizar o mesmo FIT_API_ENDPOINT/infra do provador — nunca uma segunda chave de API.
+  panel.innerHTML=`<div class="hint">Essa função de IA de beleza ainda não está implementada.</div>
+    <div class="hint" style="font-size:.78rem;max-width:340px;">A interface já está pronta — assim que o backend de beleza estiver disponível, ele será conectado aqui usando a mesma infraestrutura segura do provador virtual.</div>`;
+}
+function generateFullBeautyLook(){
+  if(!beautySelectedProductId){ alert('Escolha um produto de beleza primeiro em "Trending Now".'); return; }
+  alert('O Look Completo vai te levar ao provador virtual, já usando as roupas que você escolher lá. A parte de beleza será somada ao resultado assim que a IA de beauty estiver disponível.');
+  showView('fitting');
+}
+
+/* ---------- PROFILE ---------- */
+function handleAvatar(e){ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{ profile.avatar=r.result; persist(); renderProfile(); }; r.readAsDataURL(f); }
+function renderProfile(){
+  profile.name=document.getElementById('profName').value || profile.name || '';
+  document.getElementById('profName').value=profile.name;
+  const av=document.getElementById('profAvatar');
+  av.innerHTML = profile.avatar ? `<img src="${profile.avatar}">` : (profile.name? profile.name[0].toUpperCase() : 'V');
+  document.getElementById('statPieces').textContent=closet.length;
+  document.getElementById('statLooks').textContent=looks.length;
+  if(!profile.plan){ profile.plan='free'; profile.planStatus='ativo'; profile.credits=3; }
+  renderMyPlan();
+  persist();
+}
+
+/* ---------- INIT ---------- */
+document.getElementById('profName').value=profile.name||'';
+try{renderCloset();}catch(e){console.error('renderCloset',e);}
+try{renderLookSlots();}catch(e){console.error('renderLookSlots',e);}
+try{loadMeasures();}catch(e){console.error('loadMeasures',e);}
+try{renderPlans();}catch(e){console.error('renderPlans',e);}
+try{renderProfile();}catch(e){console.error('renderProfile',e);}
+try{refreshCreditsHint();}catch(e){}
+try{const st=document.getElementById('aiState');if(st)st.innerHTML='VESTRA AI <b>online</b> · memória: '+memorySummary();}catch(e){}
+</script>
+</body>
+</html>
+
 
