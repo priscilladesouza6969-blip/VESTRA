@@ -799,14 +799,27 @@ const VESTRA_CONFIG={
   appVersion:'2.0'
 };
 
-function planCredits(){
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+function resetDailyUsageIfNeeded(){
   const pl=PLANS.find(p=>p.id===profile.plan)||PLANS[0];
-  return {plan:pl, remaining: profile.credits ?? pl.credits};
+  if(profile.usageDate!==todayKey()){
+    profile.usageDate=todayKey();
+    profile.dailyGenerationsUsed=0;
+    profile.dailyVoiceSeconds=0;
+    profile.credits=pl.dailyCredits ?? pl.credits ?? 0;
+    persist();
+  }
+  if(profile.credits===undefined) profile.credits=pl.dailyCredits ?? pl.credits ?? 0;
+  return pl;
+}
+function planCredits(){
+  const pl=resetDailyUsageIfNeeded();
+  return {plan:pl, remaining: profile.credits ?? pl.dailyCredits ?? pl.credits};
 }
 function refreshCreditsHint(){
   const el=document.getElementById('creditsHint'); if(!el) return;
   const {plan,remaining}=planCredits();
-  el.textContent = remaining>=9999 ? `Plano ${plan.name} · gerações ilimitadas` : `Plano ${plan.name} · ${remaining} geração(ões) restante(s) neste ciclo`;
+  el.textContent = remaining>=9999 ? `Plano ${plan.name} · gerações ilimitadas` : `Plano ${plan.name} · ${remaining} geração(ões) restantes hoje · ${Math.max(0,Math.floor((plan.dailyVoiceMinutes??plan.voiceMinutes??0)-(profile.dailyVoiceSeconds||0)/60))} min de voz restantes`;
 }
 function rememberFitResult(url){
   if(!url) return;
@@ -825,7 +838,7 @@ async function generateFitting(){
   if(fittingSelected.length===0){ panel.innerHTML='<div class="hint">Escolha ou envie ao menos uma peça.</div>'; return; }
   const {remaining}=planCredits();
   if(remaining<=0){
-    panel.innerHTML='<div class="hint">Você usou todas as gerações do seu plano neste ciclo.</div><button class="btn btn-primary" style="margin-top:1rem" onclick="showView(\'plans\')">VER PLANOS</button>'; return;
+    panel.innerHTML='<div class="hint">Você atingiu o limite de gerações de hoje. O limite será renovado automaticamente amanhã.</div><button class="btn btn-primary" style="margin-top:1rem" onclick="showView(\'plans\')">VER PLANOS</button>'; return;
   }
   const steps=['Preparando seu look...','Analisando as peças...','Criando sua visualização...'];
   let i=0;
@@ -841,7 +854,7 @@ async function generateFitting(){
     const url=safeUrl(data.imageUrl); if(!url) throw new Error('A URL da imagem retornada não é válida.');
     panel.innerHTML=`<img src="${url}" style="max-height:320px;max-width:100%;border-radius:3px;object-fit:contain"><div class="gen-status">Seu look está pronto.</div><div class="result-actions"><a class="btn btn-ghost" href="${url}" target="_blank" rel="noopener">ABRIR IMAGEM</a><button class="btn btn-primary" onclick="saveGeneratedLook('${url.replace(/'/g,"%27")}')">SALVAR RESULTADO</button></div>`;
     rememberFitResult(url);
-    if((profile.credits??9999)<9999){profile.credits=Math.max(0,(profile.credits??0)-1);persist();refreshCreditsHint();}
+    if((profile.credits??9999)<9999){profile.credits=Math.max(0,(profile.credits??0)-1);profile.dailyGenerationsUsed=(profile.dailyGenerationsUsed||0)+1;persist();refreshCreditsHint();}
   }catch(err){
     clearInterval(statusIv);
     const msg=err&&err.message?err.message:'Erro desconhecido.';
@@ -983,8 +996,18 @@ function openOrbMenu(){const m=document.getElementById('orbMenu');if(!m)return;o
 function closeOrbMenu(){const m=document.getElementById('orbMenu');if(!m)return;orbMenuOpen=false;m.classList.remove('open');m.setAttribute('aria-hidden','true');}
 function toggleOrbMenu(){orbMenuOpen?closeOrbMenu():openOrbMenu();}
 function syncOrbMenu(){const label=document.getElementById('orbMicLabel'),dot=document.getElementById('orbMicDot'),state=document.getElementById('orbMenuState');if(label)label.textContent=voiceListening?'Ligado · ouvindo':'Desligado';if(dot)dot.classList.toggle('on',voiceListening);if(state)state.textContent=voiceListening?'Microfone ligado · fale com a VESTRA':'Pronta para conversar';}
-function toggleMicrophone(){if(voiceListening){recognition&&recognition.stop();return;}startVoiceRecognition();}
-function startVoiceRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Para usar o microfone, abra o VESTRA no Chrome e permita o acesso ao microfone.');return;}stopSpeaking();recognition=new SR();recognition.lang='pt-BR';recognition.interimResults=false;recognition.continuous=false;recognition.maxAlternatives=1;recognition.onstart=()=>{voiceListening=true;setOrbState('listening','OUVINDO');syncOrbMenu();const t=document.getElementById('voiceModeText');if(t)t.textContent='Estou ouvindo você';};recognition.onresult=e=>{const text=e.results?.[0]?.[0]?.transcript?.trim();if(text){const input=document.getElementById('chatInput');if(input)input.value=text;sendChat();}};recognition.onerror=()=>{voiceListening=false;syncOrbMenu();setOrbState('','VESTRA');};recognition.onend=()=>{voiceListening=false;syncOrbMenu();if(document.getElementById('orbStatus')?.textContent==='OUVINDO')setOrbState('','VESTRA');};try{recognition.start();}catch(e){voiceListening=false;syncOrbMenu();}}
+let voiceSessionStartedAt=0;
+function voiceMinutesLimit(){const pl=resetDailyUsageIfNeeded();return pl.dailyVoiceMinutes??pl.voiceMinutes??0;}
+function voiceSecondsUsed(){resetDailyUsageIfNeeded();return profile.dailyVoiceSeconds||0;}
+function voiceQuotaAvailable(){return voiceSecondsUsed() < voiceMinutesLimit()*60;}
+function finishVoiceSession(){
+  if(!voiceSessionStartedAt)return;
+  const elapsed=Math.max(0,(Date.now()-voiceSessionStartedAt)/1000);
+  profile.dailyVoiceSeconds=Math.min(voiceMinutesLimit()*60,voiceSecondsUsed()+elapsed);
+  voiceSessionStartedAt=0; persist(); refreshCreditsHint();
+}
+function toggleMicrophone(){if(voiceListening){finishVoiceSession();recognition&&recognition.stop();return;}startVoiceRecognition();}
+function startVoiceRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!voiceQuotaAvailable()){alert(`Você atingiu o limite diário de voz do seu plano (${voiceMinutesLimit()} min). O uso será renovado amanhã.`);syncOrbMenu();return;}if(!SR){alert('Para usar o microfone, abra o VESTRA no Chrome e permita o acesso ao microfone.');return;}stopSpeaking();recognition=new SR();recognition.lang='pt-BR';recognition.interimResults=false;recognition.continuous=false;recognition.maxAlternatives=1;recognition.onstart=()=>{voiceListening=true;voiceSessionStartedAt=Date.now();setOrbState('listening','OUVINDO');syncOrbMenu();const t=document.getElementById('voiceModeText');if(t)t.textContent='Estou ouvindo você';};recognition.onresult=e=>{const text=e.results?.[0]?.[0]?.transcript?.trim();if(text){const input=document.getElementById('chatInput');if(input)input.value=text;sendChat();}};recognition.onerror=()=>{voiceListening=false;syncOrbMenu();setOrbState('','VESTRA');};recognition.onend=()=>{finishVoiceSession();voiceListening=false;syncOrbMenu();if(document.getElementById('orbStatus')?.textContent==='OUVINDO')setOrbState('','VESTRA');};try{recognition.start();}catch(e){voiceListening=false;syncOrbMenu();}}
 if('speechSynthesis'in window){refreshVoices();window.speechSynthesis.onvoiceschanged=refreshVoices;}
 window.addEventListener('DOMContentLoaded',()=>{loadVoicePreference();syncOrbMenu();});
 
@@ -1022,9 +1045,9 @@ function val(id){ return document.getElementById(id).value; }
    webhook quando o pagamento é aprovado -> 4) só então o backend libera o
    plano no banco de dados. A versão atual chama o backend em /api/payment/create. Sem esse endpoint, pagamentos reais ficam bloqueados para evitar falsas confirmações. */
 const PLANS=[
-  {id:'free',   name:'FREE', price:0, credits:3, voiceMinutes:5, cycle:'mensal', benefits:['3 gerações de IA por mês','Até 20 peças no closet','AI Stylist básico','5 min de voz por mês']},
-  {id:'pro',    name:'PRO', price:29.90, credits:25, voiceMinutes:30, cycle:'mensal', benefits:['25 gerações de IA por mês','Guarda-roupa ilimitado','AI Stylist completo + memória de estilo','30 min de voz por mês','Fila de geração prioritária']},
-  {id:'black',  name:'VESTRA BLACK', price:59.90, credits:60, voiceMinutes:120, cycle:'mensal', benefits:['60 gerações de IA por mês','Guarda-roupa ilimitado','AI Stylist completo + memória avançada','120 min de voz por mês','Acesso antecipado a novos recursos']}
+  {id:'free',   name:'FREE', price:0, credits:3, dailyCredits:3, voiceMinutes:10, dailyVoiceMinutes:10, cycle:'diário', benefits:['3 gerações de IA por dia','Até 20 peças no closet','AI Stylist básico','10 min de voz por dia']},
+  {id:'pro',    name:'PRO', price:29.90, credits:20, dailyCredits:20, voiceMinutes:60, dailyVoiceMinutes:60, cycle:'diário', benefits:['20 gerações de IA por dia','Guarda-roupa ilimitado','AI Stylist completo + memória de estilo','1 hora de voz por dia','Fila de geração prioritária']},
+  {id:'black',  name:'VESTRA BLACK', price:59.90, credits:20, dailyCredits:20, voiceMinutes:120, dailyVoiceMinutes:120, cycle:'diário', benefits:['20 gerações de IA por dia','Guarda-roupa ilimitado','AI Stylist completo + memória avançada','2 horas de voz por dia','Acesso antecipado a novos recursos']}
 ];
 let checkoutPlan=null, checkoutMethod='pix';
 
@@ -1063,7 +1086,7 @@ function renderCheckout(status){
   if(status==='success'){
     body.innerHTML=`
       <h3 style="font-size:1.2rem;margin-bottom:.8rem;">Pagamento aprovado</h3>
-      <p style="color:var(--silver);font-size:.9rem;margin-bottom:1.4rem;">Seu plano ${pl.name} está ativo. ${pl.credits>=9999?'Gerações ilimitadas liberadas.':'Você tem '+pl.credits+' gerações de IA disponíveis.'} ${pl.voiceMinutes?'Inclui '+pl.voiceMinutes+' min de voz por mês.':''}</p>
+      <p style="color:var(--silver);font-size:.9rem;margin-bottom:1.4rem;">Seu plano ${pl.name} está ativo. ${pl.dailyCredits>=9999?'Gerações ilimitadas liberadas.':'Você tem '+(pl.dailyCredits||pl.credits)+' gerações de IA por dia.'} ${pl.dailyVoiceMinutes?'Inclui '+pl.dailyVoiceMinutes+' min de voz por dia.':''}</p>
       <button class="btn btn-primary" style="width:100%" onclick="showView('fitting')">VOLTAR AO PROVADOR</button>
       <button class="btn btn-ghost" style="width:100%;margin-top:.7rem" onclick="showView('profile')">VER MEU PLANO</button>`;
     return;
@@ -1326,7 +1349,7 @@ function renderProfile(){
   av.innerHTML = profile.avatar ? `<img src="${profile.avatar}">` : (profile.name? profile.name[0].toUpperCase() : 'V');
   document.getElementById('statPieces').textContent=closet.length;
   document.getElementById('statLooks').textContent=looks.length;
-  if(!profile.plan){ profile.plan='free'; profile.planStatus='ativo'; profile.credits=3; }
+  if(!profile.plan){ profile.plan='free'; profile.planStatus='ativo'; profile.credits=3; profile.usageDate=todayKey(); profile.dailyGenerationsUsed=0; profile.dailyVoiceSeconds=0; } resetDailyUsageIfNeeded();
   renderMyPlan();
   persist();
 }
