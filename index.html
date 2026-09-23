@@ -433,7 +433,8 @@ let tempPieceImg=null;
 
 function persist(){ localStorage.setItem('vestra_closet',JSON.stringify(closet)); localStorage.setItem('vestra_looks',JSON.stringify(looks)); localStorage.setItem('vestra_profile',JSON.stringify(profile)); }
 
-function showView(v){const target=document.getElementById("view-"+v);if(!target){console.error("Tela não encontrada:",v);return;}document.querySelectorAll(".view").forEach(el=>el.classList.remove("active"));target.classList.add("active");document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));if(v==="profile")renderProfile();window.scrollTo({top:0,behavior:"smooth"});} window.showView=showView;);
+function showView(v){const target=document.getElementById("view-"+v);if(!target){console.error("Tela não encontrada:",v);return;}document.querySelectorAll(".view").forEach(el=>el.classList.remove("active"));target.classList.add("active");document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));if(v==="profile")renderProfile();window.scrollTo({top:0,behavior:"smooth"});} window.showView=showView;
+document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));}););
 
 /* ---------- CLOSET ---------- */
 function renderFilters(){
