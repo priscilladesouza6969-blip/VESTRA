@@ -213,7 +213,7 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
         <p class="sub">Vista. Experimente. Crie.</p>
         <p class="copy">Seu guarda-roupa digital, seu estilo e uma nova forma de experimentar a moda com inteligência artificial.</p>
         <div class="cta-row">
-          <button class="btn btn-primary" onclick="window.location.href='/provador/'">EXPERIMENTAR AGORA</button>
+          <button class="btn btn-primary" onclick="showView('fitting')">EXPERIMENTAR AGORA</button>
           <button class="btn btn-ghost" onclick="showView('closet')">EXPLORAR VESTRA</button>
         </div>
       </div>
@@ -633,7 +633,7 @@ function renderCheckout(status){
     body.innerHTML=`
       <h3 style="font-size:1.2rem;margin-bottom:.8rem;">Pagamento aprovado</h3>
       <p style="color:var(--silver);font-size:.9rem;margin-bottom:1.4rem;">Seu plano ${pl.name} está ativo. ${pl.credits>=9999?'Gerações ilimitadas liberadas.':'Você tem '+pl.credits+' gerações de IA disponíveis.'}</p>
-      <button class="btn btn-primary" style="width:100%" onclick="window.location.href='/provador/'">VOLTAR AO PROVADOR</button>
+      <button class="btn btn-primary" style="width:100%" onclick="showView('fitting')">VOLTAR AO PROVADOR</button>
       <button class="btn btn-ghost" style="width:100%;margin-top:.7rem" onclick="showView('profile')">VER MEU PLANO</button>`;
     return;
   }
