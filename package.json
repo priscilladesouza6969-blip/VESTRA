@@ -1,0 +1,24 @@
+{
+  "name": "vestra",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priscilladesouza6969-blip/VESTRA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/priscilladesouza6969-blip/VESTRA/issues"
+  },
+  "homepage": "https://github.com/priscilladesouza6969-blip/VESTRA#readme",
+  "dependencies": {
+    "@fal-ai/client": "^1.10.1"
+  }
+}
