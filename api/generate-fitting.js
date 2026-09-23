@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     console.error("Erro na geração:", error);
 
     return res.status(500).json({
-      error: error?.message || "Erro ao gerar o look."
+      error: (error?.status ? "Status "+error.status+": " : "") + (error?.message || "Erro ao gerar o look.")
     });
   }
 
