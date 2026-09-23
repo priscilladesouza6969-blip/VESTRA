@@ -976,7 +976,54 @@ function setVoicePreference(pref){localStorage.setItem(VOICE_PREF_KEY,pref||'fem
 function refreshVoices(){if('speechSynthesis' in window)availableVoices=window.speechSynthesis.getVoices()||[];}
 function chooseVestraVoice(pref){const pt=availableVoices.filter(v=>/^pt-BR$/i.test(v.lang)||/^pt[-_]/i.test(v.lang));const pool=pt.length?pt:availableVoices;if(!pool.length)return null;const gender=pref==='male'?/male|homem|man|masc|daniel|ricardo|felipe|ant[oô]nio|jo[aã]o/i:/female|mulher|woman|femin|maria|luciana|fernanda|camila/i;return pool.find(v=>gender.test(v.name))||pool[0];}
 function setOrbState(state,label){const orb=document.getElementById('vestraOrb'),st=document.getElementById('orbStatus');if(!orb)return;orb.classList.remove('listening','speaking');if(state)orb.classList.add(state);if(st)st.textContent=label||'VESTRA';syncOrbMenu();}
-function speakText(text){if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();refreshVoices();const pref=localStorage.getItem(VOICE_PREF_KEY)||'female',u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=.97;u.pitch=pref==='female'?1.04:.92;const v=chooseVestraVoice(pref);if(v)u.voice=v;u.onstart=()=>{setOrbState('speaking','FALANDO');};u.onend=()=>{if(!voiceListening)setOrbState('','VESTRA');};window.speechSynthesis.speak(u);}
+async function speakText(text){
+  if(!text)return;
+
+  try{
+    setOrbState('speaking','FALANDO');
+
+    const response = await fetch('/api/voice',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({text})
+    });
+
+    if(!response.ok){
+      const errorText = await response.text();
+      console.error('Erro na voz da VESTRA:',errorText);
+      throw new Error('Falha ao gerar voz');
+    }
+
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
+
+    window.vestraCurrentAudio = audio;
+
+    audio.onended = ()=>{
+      URL.revokeObjectURL(audioUrl);
+      window.vestraCurrentAudio = null;
+
+      if(!voiceListening){
+        setOrbState('','VESTRA');
+      }
+    };
+
+    audio.onerror = ()=>{
+      URL.revokeObjectURL(audioUrl);
+      window.vestraCurrentAudio = null;
+      setOrbState('','VESTRA');
+    };
+
+    await audio.play();
+
+  }catch(error){
+    console.error('VESTRA VOICE:',error);
+    setOrbState('','VESTRA');
+  }
+}{if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();refreshVoices();const pref=localStorage.getItem(VOICE_PREF_KEY)||'female',u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=.97;u.pitch=pref==='female'?1.04:.92;const v=chooseVestraVoice(pref);if(v)u.voice=v;u.onstart=()=>{setOrbState('speaking','FALANDO');};u.onend=()=>{if(!voiceListening)setOrbState('','VESTRA');};window.speechSynthesis.speak(u);}
 function stopSpeaking(){if('speechSynthesis'in window)window.speechSynthesis.cancel();if(!voiceListening)setOrbState('','VESTRA');}
 function testSelectedVoice(){speakText('Olá! Eu sou a VESTRA. Estou pronta para conversar com você e controlar seu guarda-roupa.');}
 function openOrbMenu(){const m=document.getElementById('orbMenu');if(!m)return;orbMenuOpen=true;m.classList.add('open');m.setAttribute('aria-hidden','false');syncOrbMenu();}
