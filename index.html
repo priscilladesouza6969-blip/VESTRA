@@ -14,9 +14,9 @@
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:inherit; margin:0; padding:0;}
-html{scroll-padding-top:env(safe-area-inset-top,0px);}
+html{scroll-padding-top:env(safe-area-inset-top,0px); background:#07070a;}
 html,body{height:100%;}
-body{background:var(--black); color:var(--paper); font-family:'Inter',sans-serif; font-weight:300; overflow-x:hidden;}
+body{background:transparent; color:var(--paper); font-family:'Inter',sans-serif; font-weight:300; overflow-x:hidden;}
 h1,h2,h3,.display{font-family:'Bodoni Moda',serif;}
 ::selection{background:var(--holo2); color:#000;}
 a{color:inherit; text-decoration:none;}
@@ -42,11 +42,7 @@ main{max-width:1280px; margin:0 auto; padding:0 1.5rem;}
 
 /* HERO */
 .hero{position:relative; min-height:min(88vh,780px); display:flex; align-items:center; margin:0 -1.5rem; padding:0 1.5rem; overflow:hidden; border-bottom:1px solid var(--line);}
-.hero::before{content:'';position:absolute; inset:0; background:
-  radial-gradient(60% 55% at 78% 20%, rgba(185,228,255,.16), transparent 60%),
-  radial-gradient(55% 50% at 20% 85%, rgba(230,201,255,.14), transparent 60%),
-  linear-gradient(180deg, #0a0a0a, #050505);
-  z-index:0;}
+.hero::before{content:none;}
 .hero-inner{position:relative; z-index:1; max-width:760px; padding:6rem 0;}
 .eyebrow{font-size:.72rem; letter-spacing:.18em; color:var(--holo2); margin-bottom:1.4rem;}
 .hero h1{font-size:clamp(2.6rem,7vw,4.6rem); line-height:1.02; font-weight:500;}
@@ -188,19 +184,7 @@ section{padding:4.5rem 0;}
 .faq-a{max-height:0; overflow:hidden; color:var(--steel); font-size:.85rem; line-height:1.6; transition:max-height .25s ease;}
 .faq-item.open .faq-a{max-height:200px; padding-bottom:1rem;}
 
-/* BEAUTY FEATURED ON HOME */
-.home-beauty-feature{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:2.8rem 2rem;margin:3rem 0;background:radial-gradient(circle at 85% 20%,rgba(220,180,255,.14),transparent 35%),linear-gradient(135deg,#151515,#090909);text-align:center;}
-.home-beauty-feature:before{content:"BEAUTYFUL";position:absolute;inset:auto -10% -45%;font-family:'Bodoni Moda',serif;font-size:8rem;letter-spacing:.12em;color:rgba(255,255,255,.025);pointer-events:none;}
-.home-beauty-feature .eyebrow{font-size:.68rem;letter-spacing:.2em;color:var(--holo2);margin-bottom:.7rem;}
-.home-beauty-feature h2{font-family:'Bodoni Moda',serif;font-size:clamp(2rem,6vw,3.4rem);font-weight:400;letter-spacing:.02em;}
-.home-beauty-feature h2 span{background:linear-gradient(90deg,var(--holo1),var(--holo2),var(--holo3));-webkit-background-clip:text;background-clip:text;color:transparent;}
-.home-beauty-feature p{max-width:620px;margin:1rem auto 1.5rem;color:var(--silver);line-height:1.7;font-size:.92rem;}
-.home-beauty-feature .beauty-actions{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap;position:relative;z-index:1;}
-.home-beauty-feature .beauty-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;max-width:650px;margin:2rem auto 0;position:relative;z-index:1;}
-.home-beauty-feature .beauty-mini div{border:1px solid var(--line);padding:1rem .6rem;border-radius:5px;background:rgba(255,255,255,.025);font-size:.72rem;color:var(--silver);}
-@media(max-width:600px){.home-beauty-feature{padding:2.2rem 1rem}.home-beauty-feature .beauty-mini{grid-template-columns:1fr;}}
-
-/* BEAUTY */
+/* BEAUTY *//* BEAUTY */
 .beauty-hero{border:1px solid var(--line); border-radius:4px; padding:2.4rem 1.6rem; text-align:center; margin-bottom:2.5rem; background:linear-gradient(155deg,#131313,#0a0a0a);}
 .beauty-hero h2{font-size:clamp(1.7rem,5vw,2.4rem);}
 .beauty-hero .sub{font-family:'Bodoni Moda',serif; color:var(--holo2); margin-top:.5rem;}
@@ -269,9 +253,81 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
 @keyframes orbSpeak{to{transform:scale(1.22);box-shadow:inset 0 0 24px rgba(255,255,255,.34),0 0 42px rgba(185,228,255,.55);}}
 @media(max-width:600px){.chatbox{height:calc(100vh - 210px);min-height:470px;}.voice-panel{margin:.7rem 0;padding:.8rem;}.ai-tools{padding:0 0 .6rem;}.ai-state{padding:0 0 .7rem;}.vestra-orb{width:62px;height:62px;right:14px;bottom:14px;}}
 
+
+/* HOME — BEAUTY integrado + mundo mágico futurista */
+.hero-integrated{
+  border-bottom:none !important;
+  background:transparent;
+}
+@keyframes magicWorld{
+  0%{filter:hue-rotate(0deg);transform:scale(1);}
+  50%{filter:hue-rotate(8deg);transform:scale(1.025);}
+  100%{filter:hue-rotate(-6deg);transform:scale(1.01);}
+}
+.home-beauty-inline{
+  margin:2rem auto 0;
+  max-width:720px;
+  padding:1.15rem 0 0;
+  border-top:none !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.home-beauty-inline::before,
+.home-beauty-inline::after{
+  display:none !important;
+}
+.home-beauty-inline .eyebrow{margin-bottom:.45rem;}
+.home-beauty-inline h2{
+  margin:.15rem 0 .45rem;
+  font-family:'Bodoni Moda',serif;
+  font-size:clamp(1.65rem,5vw,2.5rem);
+  font-weight:400;
+  letter-spacing:.03em;
+  text-shadow:0 0 28px rgba(230,201,255,.22);
+}
+.home-beauty-inline h2 span{
+  background:linear-gradient(90deg,var(--holo1),var(--holo2),var(--holo3));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.home-beauty-inline p{
+  margin:.5rem auto 1rem;
+  max-width:620px;
+  color:var(--silver);
+  line-height:1.6;
+  font-size:.88rem;
+}
+.home-beauty-inline .btn{
+  background:transparent !important;
+  box-shadow:none !important;
+}
+@media(max-width:600px){
+  .home-beauty-inline{margin-top:1.5rem;padding-top:1rem;}
+}
+
+/* FUNDO INTERATIVO (segue dedo/mouse) + BOTÃO TELA CHEIA — apenas adição, nada removido */
+#vestraSpotlight{position:fixed; inset:-10%; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(420px 420px at var(--sx,50%) var(--sy,50%), rgba(255,255,255,.14), transparent 60%),
+    radial-gradient(35% 32% at 18% 25%, rgba(185,228,255,.18), transparent 70%),
+    radial-gradient(40% 38% at 82% 22%, rgba(230,201,255,.16), transparent 70%),
+    radial-gradient(32% 34% at 58% 78%, rgba(255,215,234,.13), transparent 72%),
+    radial-gradient(22% 24% at 30% 82%, rgba(150,220,255,.12), transparent 70%),
+    linear-gradient(125deg,#07080d 0%,#101020 45%,#08070d 100%);
+  animation:magicWorld 16s ease-in-out infinite alternate;
+}
+@media(prefers-reduced-motion:reduce){#vestraSpotlight{animation:none;}}
+.fullscreen-btn{position:fixed; right:14px; z-index:60; bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  width:42px; height:42px; border-radius:50%; background:rgba(10,10,10,.7); border:1px solid var(--line);
+  backdrop-filter:blur(8px); color:var(--paper); font-size:1.05rem; display:flex; align-items:center; justify-content:center;}
+.fullscreen-btn:active{transform:scale(.94);}
 </style>
 </head>
 <body>
+
+<div id="vestraSpotlight" aria-hidden="true"></div>
+<button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" aria-label="Tela cheia" title="Tela cheia">⛶</button>
 
 <header>
   <div class="navwrap">
@@ -286,6 +342,8 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
       <button data-view="plans">PLANOS</button>
       <button data-view="suporte">SUPORTE</button>
       <button data-view="beauty">💄 BEAUTY</button>
+      <button data-view="partners">PARTNERS</button>
+      <button data-view="creators">CREATORS</button>
       <button data-view="profile">MY PROFILE</button>
     </nav>
   </div>
@@ -295,7 +353,7 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
 
   <!-- HOME -->
   <section class="view active" id="view-home">
-    <div class="hero">
+    <div class="hero hero-integrated">
       <div class="hero-inner">
         <div class="eyebrow">FASHION × AI × DIGITAL WARDROBE</div>
         <h1>YOUR STYLE.<br>YOUR DIGITAL WARDROBE.</h1>
@@ -305,14 +363,13 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
           <button class="btn btn-primary" onclick="showView('fitting')">EXPERIMENTAR AGORA</button>
           <button class="btn btn-ghost" onclick="showView('closet')">EXPLORAR VESTRA</button>
         </div>
-      </div>
-    </div>
-    <div class="home-beauty-feature">
-      <div class="eyebrow">VESTRA BEAUTYFUL</div>
-      <h2>BEAUTY<span>FUL</span></h2>
-      <p>Uma experiência de beleza com IA para explorar maquiagem, cabelo e seu estilo.</p>
-      <div class="beauty-actions">
-        <button class="btn btn-primary" onclick="showView('beauty')">ABRIR BEAUTYFUL</button>
+
+        <div class="home-beauty-inline">
+          <div class="eyebrow">VESTRA BEAUTYFUL</div>
+          <h2>BEAUTY<span>FUL</span></h2>
+          <p>Beleza, maquiagem, cabelo e estilo com inteligência artificial — integrados à sua experiência VESTRA.</p>
+          <button class="btn btn-ghost" onclick="showView('beauty')">EXPLORAR BEAUTYFUL</button>
+        </div>
       </div>
     </div>
   </section>
@@ -479,6 +536,13 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
       <h3 style="font-size:1.05rem;font-weight:500;margin-bottom:.3rem;">Meu Plano</h3>
       <div id="myPlanBody"></div>
     </div>
+
+    <div class="myplan-card">
+      <h3 style="font-size:1.05rem;font-weight:500;margin-bottom:.3rem;">Meus Endereços</h3>
+      <p class="note" style="margin:0 0 1rem;">Seus endereços são privados e nunca ficam visíveis publicamente.</p>
+      <div id="addressList"></div>
+      <button class="btn btn-ghost" style="margin-top:1rem" onclick="openAddressModal()">+ ADICIONAR ENDEREÇO</button>
+    </div>
   </section>
 
   <!-- PLANS -->
@@ -581,6 +645,56 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
     <div class="modal" id="beautyProductBody"></div>
   </div>
 
+  <div class="overlay" id="addressModal">
+    <div class="modal">
+      <h3>Endereço</h3>
+      <div class="field"><label>Nome do endereço</label><input id="addr-label" placeholder="Ex: Casa, Trabalho"></div>
+      <div class="field"><label>Rua e número</label><input id="addr-street" placeholder="Rua Exemplo, 123"></div>
+      <div class="field-row">
+        <div class="field"><label>Bairro</label><input id="addr-district"></div>
+        <div class="field"><label>CEP</label><input id="addr-zip"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Cidade</label><input id="addr-city"></div>
+        <div class="field"><label>Estado</label><input id="addr-state" maxlength="2" placeholder="SP"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">CANCELAR</button>
+        <button class="btn btn-primary" onclick="saveAddress()">SALVAR ENDEREÇO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VESTRA PARTNERS -->
+  <section class="view" id="view-partners">
+    <div class="sec-head">
+      <h2>VESTRA Partners</h2>
+      <p>Lojas e marcas parceiras da VESTRA. Os produtos levam você direto ao site de cada loja — a VESTRA não vende nada diretamente.</p>
+    </div>
+    <div class="filters" id="partnersCatFilters"></div>
+    <div class="grid" id="partnersProducts" style="margin-bottom:2.5rem;"></div>
+    <div class="sec-head"><h2 style="font-size:1.2rem;">Lojas</h2><p></p></div>
+    <div class="plan-cards" id="partnersStores"></div>
+  </section>
+
+  <!-- VESTRA FOUNDING CREATORS -->
+  <section class="view" id="view-creators">
+    <div class="sec-head">
+      <h2>VESTRA Founding Creators</h2>
+      <p>Faça parte das primeiras pessoas a apresentar a VESTRA ao mundo.</p>
+    </div>
+    <div id="creatorsBody"></div>
+  </section>
+
+  <!-- VESTRA EARLY ACCESS -->
+  <section class="view" id="view-earlyaccess">
+    <div class="beauty-hero" style="text-align:center;">
+      <h2>VESTRA EARLY ACCESS</h2>
+      <p style="max-width:420px;margin:1rem auto 1.6rem;">A próxima forma de experimentar moda está chegando.</p>
+      <div id="earlyAccessBody" style="max-width:380px;margin:0 auto;text-align:left;"></div>
+    </div>
+  </section>
+
 </main>
 
 <!-- VESTRA AI ORB: avatar de voz móvel -->
@@ -604,7 +718,7 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
   <span class="orb-core"></span><span class="orb-ring"></span><span class="orb-status" id="orbStatus">VESTRA</span>
 </button>
 
-<footer>VESTRA — Fashion × AI × Digital Wardrobe</footer>
+<footer>VESTRA — Fashion × AI × Digital Wardrobe<br><button class="btn btn-ghost" style="margin-top:.8rem;font-size:.68rem;padding:.5rem 1rem" onclick="showView('earlyaccess')">VESTRA EARLY ACCESS</button></footer>
 
 <!-- ADD PIECE MODAL -->
 <div class="overlay" id="pieceModal">
@@ -622,9 +736,8 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
     <div class="field-row">
       <div class="field"><label>Categoria</label>
         <select id="p-cat">
-          <option>Tops</option><option>Camisetas</option><option>Blusas</option><option>Calças</option>
-          <option>Saias</option><option>Vestidos</option><option>Jaquetas</option><option>Casacos</option>
-          <option>Sapatos</option><option>Bolsas</option><option>Acessórios</option>
+          <option>Roupas</option><option>Calçados</option><option>Bolsas</option><option>Acessórios</option>
+          <option>Maquiagem</option><option>Skincare</option><option>Cabelo</option><option>Perfumes</option><option>Beleza</option>
         </select>
       </div>
       <div class="field"><label>Cor</label><input id="p-color" placeholder="Ex: Preto"></div>
@@ -650,7 +763,43 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
 </div>
 
 <script>
-const CATS=["Tops","Camisetas","Blusas","Calças","Saias","Vestidos","Jaquetas","Casacos","Sapatos","Bolsas","Acessórios"];
+/* ---------- FUNDO INTERATIVO (mouse + toque) ---------- */
+(function initSpotlight(){
+  const root=document.documentElement;
+  let tx=50, ty=50, cx=50, cy=50, raf=0;
+  function setTarget(x,y){
+    tx=Math.max(0,Math.min(100, x/window.innerWidth*100));
+    ty=Math.max(0,Math.min(100, y/window.innerHeight*100));
+    if(!raf) raf=requestAnimationFrame(loop);
+  }
+  function loop(){
+    cx+=(tx-cx)*.12; cy+=(ty-cy)*.12;
+    root.style.setProperty('--sx',cx+'%'); root.style.setProperty('--sy',cy+'%');
+    raf=0;
+    if(Math.abs(tx-cx)+Math.abs(ty-cy)>.05) raf=requestAnimationFrame(loop);
+  }
+  window.addEventListener('pointermove', e=>setTarget(e.clientX,e.clientY), {passive:true});
+  window.addEventListener('touchmove', e=>{ const t=e.touches[0]; if(t) setTarget(t.clientX,t.clientY); }, {passive:true});
+  window.addEventListener('touchstart', e=>{ const t=e.touches[0]; if(t) setTarget(t.clientX,t.clientY); }, {passive:true});
+})();
+
+/* ---------- TELA CHEIA ---------- */
+function toggleFullscreen(){
+  const el=document.documentElement;
+  const btn=document.getElementById('fullscreenBtn');
+  if(!document.fullscreenElement){
+    (el.requestFullscreen ? el.requestFullscreen() : (el.webkitRequestFullscreen && el.webkitRequestFullscreen()));
+  }else{
+    (document.exitFullscreen ? document.exitFullscreen() : (document.webkitExitFullscreen && document.webkitExitFullscreen()));
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  const btn=document.getElementById('fullscreenBtn'); if(!btn) return;
+  btn.textContent = document.fullscreenElement ? '×' : '⛶';
+  btn.title = document.fullscreenElement ? 'Sair da tela cheia' : 'Tela cheia';
+});
+
+const CATS=["Roupas","Calçados","Bolsas","Acessórios","Maquiagem","Skincare","Cabelo","Perfumes","Beleza"];
 let closet=JSON.parse(localStorage.getItem('vestra_closet')||'[]');
 let looks=JSON.parse(localStorage.getItem('vestra_looks')||'[]');
 let profile=JSON.parse(localStorage.getItem('vestra_profile')||'{}');
@@ -672,6 +821,9 @@ function showView(v){
   if(v==='fitting') refreshCreditsHint();
   if(v==='beauty'){ renderBeautyCats(); renderBeautyProducts(); renderBeautyStores(); renderBeautyFavs(); }
   if(v==='suporte') renderFaq();
+  if(v==='partners'){ renderPartnersCats(); renderPartnersProducts(); renderPartnersStores(); }
+  if(v==='creators') renderCreators();
+  if(v==='earlyaccess') renderEarlyAccess();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 document.getElementById('tabs').addEventListener('click',e=>{
@@ -723,7 +875,7 @@ function deletePiece(id){ closet=closet.filter(x=>x.id!==id); persist(); renderC
 function openAddPiece(){ tempPieceImg=null; document.getElementById('pieceImgPreview').style.display='none'; document.getElementById('pieceImgHint').style.display='block';
   ['p-name','p-color','p-size'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pieceModal').classList.add('active'); }
-function closeModal(){ document.getElementById('pieceModal').classList.remove('active'); document.getElementById('pickerModal').classList.remove('active'); }
+function closeModal(){ document.getElementById('pieceModal').classList.remove('active'); document.getElementById('pickerModal').classList.remove('active'); document.getElementById('addressModal')?.classList.remove('active'); }
 function previewPieceImg(e){ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
   r.onload=()=>{ tempPieceImg=r.result; const img=document.getElementById('pieceImgPreview'); img.src=tempPieceImg; img.style.display='block'; document.getElementById('pieceImgHint').style.display='none'; }; r.readAsDataURL(f); }
 function savePiece(){
@@ -806,7 +958,7 @@ function planCredits(){
 function refreshCreditsHint(){
   const el=document.getElementById('creditsHint'); if(!el) return;
   const {plan,remaining}=planCredits();
-  el.textContent = remaining>=9999 ? `Plano ${plan.name} · gerações ilimitadas` : `Plano ${plan.name} · ${remaining} geração(ões) de foto restante(s) neste mês`;
+  el.textContent = remaining>=9999 ? `Plano ${plan.name} · gerações ilimitadas` : `Plano ${plan.name} · ${remaining} geração(ões) restante(s) neste ciclo`;
 }
 function rememberFitResult(url){
   if(!url) return;
@@ -918,14 +1070,49 @@ function localStylistReply(text){
   if(t.includes('meu estilo')||t.includes('gosto'))return 'Até agora, minha memória de estilo está em: '+memorySummary()+'. Diga algo como “gosto de preto e cyber” e eu vou guardar essa preferência.';
   return 'Entendi. Posso ajudar com looks, seu closet, provador, medidas e Beauty. Quanto mais você me contar sobre o que gosta, mais personalizadas ficam minhas sugestões.';
 }
+let sampleFn=null, sampleTried=false;
+async function getSample(){
+  if(sampleTried) return sampleFn;
+  sampleTried=true;
+  try{ sampleFn = (window.claude && window.claude.use) ? await claude.use('sample') : null; }
+  catch(e){ sampleFn=null; }
+  return sampleFn;
+}
+async function askVestraIntelligence(text){
+  const sample=await getSample();
+  if(!sample) return null;
+  try{
+    const historyText=[...document.querySelectorAll('#chatMsgs .msg')].slice(-10).map(m=>(m.classList.contains('user')?'Cliente: ':'VESTRA: ')+m.textContent).join('\n')||'(sem histórico ainda)';
+    const closetList=closet.slice(0,40).map(p=>`${p.name} (${p.cat||p.category||'peça'}, cor ${p.color||'—'}, tam ${p.size||'—'}${p.fav?', favorita':''})`).join('; ')||'closet vazio no momento';
+    const prompt=`Você é a VESTRA AI Stylist: uma consultora de moda e beleza de altíssimo nível, com o refinamento de uma estilista de casa de luxo europeia e o conhecimento técnico de uma editora de moda. Você entende profundamente de silhueta, caimento, colorimetria pessoal, tecidos, tendências atuais e atemporais, styling por tipo de corpo e ocasião, e como compor looks equilibrados. Seu tom é caloroso, elegante, confiante e direto — nunca robótico, nunca genérico, nunca um formulário de perguntas. Fale em português do Brasil, em respostas curtas (2 a 5 frases).
+
+Guarda-roupa da pessoa: ${closetList}
+Memória de estilo já aprendida: ${memorySummary()}
+Medidas informadas: ${JSON.stringify(profile.measures||{})}
+
+Histórico recente da conversa:
+${historyText}
+
+Mensagem atual do cliente: "${text}"
+
+Responda SOMENTE em JSON válido, neste formato exato, sem markdown, sem crases:
+{"reply":"sua resposta em texto","actions":[]}
+Preencha "actions" apenas quando fizer sentido controlar a interface, com objetos destes tipos: {"type":"open_view","view":"closet|fitting|look|plans|profile|beauty|measures"}, {"type":"filter_closet","query":"...","category":"..."}, {"type":"favorite_piece","pieceIds":["..."]}, {"type":"create_look","pieceIds":["..."]}, {"type":"start_fitting","pieceIds":["..."]}, {"type":"clear_look"}, {"type":"save_look"}. Nunca invente peças que não estão listadas no guarda-roupa acima.`;
+    const data=await sample.json(prompt,{modelTier:'quick',cache:false});
+    if(data && typeof data.reply==='string') return {reply:data.reply, actions:Array.isArray(data.actions)?data.actions:[]};
+    return null;
+  }catch(e){ return null; }
+}
 async function askStylistAPI(text){
   try{
     const history=[...document.querySelectorAll('#chatMsgs .msg')].slice(-12).map(m=>({role:m.classList.contains('user')?'user':'assistant',content:m.textContent}));
     const res=await fetch(VESTRA_CONFIG.aiEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history,profile:{name:profile.name||'',styleMemory:getStyleMemory(),measures:profile.measures||{}},closet:closet.slice(0,60).map(p=>({id:p.id,name:p.name,category:p.cat||p.category,color:p.color,size:p.size,fav:!!p.fav,img:!!p.img}))})});
     const data=await res.json().catch(()=>({}));
     if(res.ok&&data.reply)return data;
-    throw new Error(data.error||'A VESTRA AI ainda não está conectada.');
+    throw new Error(data.error||'A VESTRA AI própria ainda não está conectada.');
   }catch(e){
+    const smart=await askVestraIntelligence(text);
+    if(smart) return smart;
     return {reply:localStylistReply(text),actions:[]};
   }
 }
@@ -974,64 +1161,56 @@ const VOICE_PREF_KEY='vestra_voice_preference';
 function loadVoicePreference(){const pref=localStorage.getItem(VOICE_PREF_KEY)||'female';const a=document.getElementById('voiceSelect'),b=document.getElementById('orbVoiceSelect');if(a)a.value=pref;if(b)b.value=pref;}
 function setVoicePreference(pref){localStorage.setItem(VOICE_PREF_KEY,pref||'female');const b=document.getElementById('orbVoiceSelect');if(b)b.value=pref;const a=document.getElementById('voiceSelect');if(a)a.value=pref;}
 function refreshVoices(){if('speechSynthesis' in window)availableVoices=window.speechSynthesis.getVoices()||[];}
-function chooseVestraVoice(pref){const pt=availableVoices.filter(v=>/^pt-BR$/i.test(v.lang)||/^pt[-_]/i.test(v.lang));const pool=pt.length?pt:availableVoices;if(!pool.length)return null;const gender=pref==='male'?/male|homem|man|masc|daniel|ricardo|felipe|ant[oô]nio|jo[aã]o/i:/female|mulher|woman|femin|maria|luciana|fernanda|camila/i;return pool.find(v=>gender.test(v.name))||pool[0];}
+function chooseVestraVoice(pref){
+  const pt=availableVoices.filter(v=>/^pt-BR$/i.test(v.lang)||/^pt[-_]/i.test(v.lang));
+  const pool=pt.length?pt:availableVoices;
+  if(!pool.length)return null;
+  const premium=/natural|neural|online|google|luciana|francisca|camila|ines|inês|maria/i;
+  const gender=pref==='male'?/male|homem|man|masc|daniel|ricardo|felipe|ant[oô]nio|jo[aã]o/i:/female|mulher|woman|femin|maria|luciana|fernanda|camila|francisca/i;
+  const genderMatches=pool.filter(v=>gender.test(v.name));
+  const best=genderMatches.find(v=>premium.test(v.name)) || pool.find(v=>gender.test(v.name)&&premium.test(v.name));
+  return best || genderMatches[0] || pool.find(v=>premium.test(v.name)) || pool[0];
+}
 function setOrbState(state,label){const orb=document.getElementById('vestraOrb'),st=document.getElementById('orbStatus');if(!orb)return;orb.classList.remove('listening','speaking');if(state)orb.classList.add(state);if(st)st.textContent=label||'VESTRA';syncOrbMenu();}
-async function speakText(text){
-  if(!text)return;
-
-  try{
-    setOrbState('speaking','FALANDO');
-
-    const response = await fetch('/api/voice',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({text})
-    });
-
-    if(!response.ok){
-      const errorText = await response.text();
-      console.error('Erro na voz da VESTRA:',errorText);
-      throw new Error('Falha ao gerar voz');
-    }
-
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = new Audio(audioUrl);
-
-    window.vestraCurrentAudio = audio;
-
-    audio.onended = ()=>{
-      URL.revokeObjectURL(audioUrl);
-      window.vestraCurrentAudio = null;
-
-      if(!voiceListening){
-        setOrbState('','VESTRA');
-      }
-    };
-
-    audio.onerror = ()=>{
-      URL.revokeObjectURL(audioUrl);
-      window.vestraCurrentAudio = null;
-      setOrbState('','VESTRA');
-    };
-
-    await audio.play();
-
-  }catch(error){
-    console.error('VESTRA VOICE:',error);
-    setOrbState('','VESTRA');
-  }
-}{if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();refreshVoices();const pref=localStorage.getItem(VOICE_PREF_KEY)||'female',u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=.97;u.pitch=pref==='female'?1.04:.92;const v=chooseVestraVoice(pref);if(v)u.voice=v;u.onstart=()=>{setOrbState('speaking','FALANDO');};u.onend=()=>{if(!voiceListening)setOrbState('','VESTRA');};window.speechSynthesis.speak(u);}
+function speakText(text){if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();refreshVoices();const pref=localStorage.getItem(VOICE_PREF_KEY)||'female',u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=.93;u.pitch=pref==='female'?1.02:.9;u.volume=1;const v=chooseVestraVoice(pref);if(v)u.voice=v;u.onstart=()=>{setOrbState('speaking','FALANDO');};u.onend=()=>{if(!voiceListening)setOrbState('','VESTRA');};window.speechSynthesis.speak(u);}
 function stopSpeaking(){if('speechSynthesis'in window)window.speechSynthesis.cancel();if(!voiceListening)setOrbState('','VESTRA');}
 function testSelectedVoice(){speakText('Olá! Eu sou a VESTRA. Estou pronta para conversar com você e controlar seu guarda-roupa.');}
 function openOrbMenu(){const m=document.getElementById('orbMenu');if(!m)return;orbMenuOpen=true;m.classList.add('open');m.setAttribute('aria-hidden','false');syncOrbMenu();}
 function closeOrbMenu(){const m=document.getElementById('orbMenu');if(!m)return;orbMenuOpen=false;m.classList.remove('open');m.setAttribute('aria-hidden','true');}
 function toggleOrbMenu(){orbMenuOpen?closeOrbMenu():openOrbMenu();}
 function syncOrbMenu(){const label=document.getElementById('orbMicLabel'),dot=document.getElementById('orbMicDot'),state=document.getElementById('orbMenuState');if(label)label.textContent=voiceListening?'Ligado · ouvindo':'Desligado';if(dot)dot.classList.toggle('on',voiceListening);if(state)state.textContent=voiceListening?'Microfone ligado · fale com a VESTRA':'Pronta para conversar';}
-function toggleMicrophone(){if(voiceListening){recognition&&recognition.stop();return;}startVoiceRecognition();}
-function startVoiceRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Para usar o microfone, abra o VESTRA no Chrome e permita o acesso ao microfone.');return;}stopSpeaking();recognition=new SR();recognition.lang='pt-BR';recognition.interimResults=false;recognition.continuous=false;recognition.maxAlternatives=1;recognition.onstart=()=>{voiceListening=true;setOrbState('listening','OUVINDO');syncOrbMenu();const t=document.getElementById('voiceModeText');if(t)t.textContent='Estou ouvindo você';};recognition.onresult=e=>{const text=e.results?.[0]?.[0]?.transcript?.trim();if(text){const input=document.getElementById('chatInput');if(input)input.value=text;sendChat();}};recognition.onerror=()=>{voiceListening=false;syncOrbMenu();setOrbState('','VESTRA');};recognition.onend=()=>{voiceListening=false;syncOrbMenu();if(document.getElementById('orbStatus')?.textContent==='OUVINDO')setOrbState('','VESTRA');};try{recognition.start();}catch(e){voiceListening=false;syncOrbMenu();}}
+function toggleMicrophone(){if(voiceListening){stopVoiceRecognition();return;}startVoiceRecognition();}
+function toggleVoice(){ toggleMicrophone(); }
+function startVoiceRecognition(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Para usar o microfone, abra o VESTRA no Chrome e permita o acesso ao microfone.');return;}
+  stopSpeaking();
+  voiceListening=true;
+  recognition=new SR();
+  recognition.lang='pt-BR';
+  recognition.interimResults=false;
+  recognition.continuous=true;
+  recognition.maxAlternatives=1;
+  recognition.onstart=()=>{setOrbState('listening','OUVINDO');syncOrbMenu();const t=document.getElementById('voiceModeText');if(t)t.textContent='Estou ouvindo você — toque no microfone para desligar';};
+  recognition.onresult=e=>{
+    const last=e.results?.[e.results.length-1];
+    const text=last?.[0]?.transcript?.trim();
+    if(text){const input=document.getElementById('chatInput');if(input)input.value=text;sendChat();}
+  };
+  recognition.onerror=(e)=>{ if(e.error==='no-speech'||e.error==='aborted')return; voiceListening=false;syncOrbMenu();setOrbState('','VESTRA'); };
+  recognition.onend=()=>{
+    if(voiceListening){ try{recognition.start();return;}catch(e){} }
+    syncOrbMenu();
+    if(document.getElementById('orbStatus')?.textContent==='OUVINDO')setOrbState('','VESTRA');
+  };
+  try{recognition.start();}catch(e){voiceListening=false;syncOrbMenu();}
+}
+function stopVoiceRecognition(){
+  voiceListening=false;
+  if(recognition){ try{recognition.stop();}catch(e){} }
+  syncOrbMenu(); setOrbState('','VESTRA');
+  const t=document.getElementById('voiceModeText');if(t)t.textContent='Toque para falar';
+}
 if('speechSynthesis'in window){refreshVoices();window.speechSynthesis.onvoiceschanged=refreshVoices;}
 window.addEventListener('DOMContentLoaded',()=>{loadVoicePreference();syncOrbMenu();});
 
@@ -1069,9 +1248,9 @@ function val(id){ return document.getElementById(id).value; }
    webhook quando o pagamento é aprovado -> 4) só então o backend libera o
    plano no banco de dados. A versão atual chama o backend em /api/payment/create. Sem esse endpoint, pagamentos reais ficam bloqueados para evitar falsas confirmações. */
 const PLANS=[
-  {id:'free', name:'FREE', price:0, credits:3, voiceMinutes:10, cycle:'mensal', benefits:['3 gerações de fotos com IA por mês','Guarda-roupa até 20 peças','AI Stylist básico','10 min de voz por semana']},
-  {id:'pro', name:'PRO', price:29.90, credits:10, voiceMinutes:20, cycle:'mensal', benefits:['10 gerações de fotos com IA por mês','Guarda-roupa ilimitado','AI Stylist completo + memória de estilo','30 min de voz por semana','Fila de geração prioritária']},
-  {id:'black', name:'VESTRA BLACK', price:59.90, credits:20, voiceMinutes:40, cycle:'mensal', benefits:['20 gerações de fotos com IA por mês','Guarda-roupa ilimitado','AI Stylist avançado + memória de estilo','40 min de voz por semana','Acesso antecipado a novos recursos']}
+  {id:'free',   name:'FREE', price:0, credits:3, voiceMinutes:5, cycle:'mensal', benefits:['3 gerações de IA por mês','Até 20 peças no closet','AI Stylist básico','5 min de voz por mês']},
+  {id:'pro',    name:'PRO', price:29.90, credits:25, voiceMinutes:30, cycle:'mensal', benefits:['25 gerações de IA por mês','Guarda-roupa ilimitado','AI Stylist completo + memória de estilo','30 min de voz por mês','Fila de geração prioritária']},
+  {id:'black',  name:'VESTRA BLACK', price:59.90, credits:60, voiceMinutes:120, cycle:'mensal', benefits:['60 gerações de IA por mês','Guarda-roupa ilimitado','AI Stylist completo + memória avançada','120 min de voz por mês','Acesso antecipado a novos recursos']}
 ];
 let checkoutPlan=null, checkoutMethod='pix';
 
@@ -1271,6 +1450,152 @@ const BEAUTY_STORES=[
 ];
 let beautyPhoto=null, beautySelectedProductId=null;
 
+/* ---------- VESTRA PARTNERS ----------
+   Schema oficial (igual ao pedido): id,name,brand,category,image,price,oldPrice,discount,
+   rating,storeName,storeUrl,sponsored,featured,active. Somente active:true aparece;
+   somente featured:true aparece no Trending Now. Tudo abaixo é DEMONSTRAÇÃO — quando
+   parceiros reais forem cadastrados (via painel admin, que exige backend), estes dados
+   devem ser substituídos por dados reais vindos do banco (partnerProducts). */
+const PARTNER_PRODUCTS=[
+  {id:'pp1', name:'Jaqueta Alfaiataria', brand:'Exemplo Studio', category:'Roupas', price:389.90, oldPrice:459.90, discount:15, rating:4.7, storeName:'Exemplo Studio', storeUrl:'#', sponsored:true, featured:true, active:true},
+  {id:'pp2', name:'Bota Chelsea Couro', brand:'Exemplo Shoes', category:'Calçados', price:449.00, oldPrice:null, discount:null, rating:4.8, storeName:'Exemplo Shoes', storeUrl:'#', sponsored:false, featured:true, active:true},
+  {id:'pp3', name:'Bolsa Estruturada Mini', brand:'Exemplo Leather', category:'Bolsas', price:299.90, oldPrice:349.90, discount:14, rating:4.5, storeName:'Exemplo Leather', storeUrl:'#', sponsored:true, featured:true, active:true},
+  {id:'pp4', name:'Batom Matte Vestra Red', brand:'Exemplo Beauty', category:'Maquiagem', price:59.90, oldPrice:null, discount:null, rating:4.6, storeName:'Exemplo Beauty', storeUrl:'#', sponsored:false, featured:true, active:true},
+  {id:'pp5', name:'Sérum Facial Glow', brand:'Exemplo Beauty', category:'Skincare', price:89.90, oldPrice:null, discount:null, rating:4.8, storeName:'Exemplo Beauty', storeUrl:'#', sponsored:false, featured:true, active:true},
+  {id:'pp6', name:'Perfume Holo Aura', brand:'Exemplo Fragrances', category:'Perfumes', price:149.90, oldPrice:179.90, discount:17, rating:4.7, storeName:'Exemplo Fragrances', storeUrl:'#', sponsored:true, featured:true, active:true}
+];
+const PARTNER_STORES=[
+  {id:'s1', name:'Exemplo Studio', cats:'Roupas · Alfaiataria'},
+  {id:'s2', name:'Exemplo Shoes', cats:'Calçados'},
+  {id:'s3', name:'Exemplo Leather', cats:'Bolsas · Acessórios'},
+  {id:'s4', name:'Exemplo Beauty', cats:'Maquiagem · Skincare'},
+  {id:'s5', name:'Exemplo Fragrances', cats:'Perfumes'}
+];
+let partnersActiveCat='Todos';
+function renderPartnersCats(){
+  const el=document.getElementById('partnersCatFilters'); if(!el) return;
+  el.innerHTML=['Todos',...CATS].map(c=>`<div class="chip${c===partnersActiveCat?' active':''}" onclick="setPartnersCat('${c}')">${c}</div>`).join('');
+}
+function setPartnersCat(c){ partnersActiveCat=c; renderPartnersCats(); renderPartnersProducts(); }
+function renderPartnersProducts(){
+  const el=document.getElementById('partnersProducts'); if(!el) return;
+  const items=PARTNER_PRODUCTS.filter(p=>p.active && p.featured && (partnersActiveCat==='Todos'||p.category===partnersActiveCat));
+  el.innerHTML = items.length ? items.map(p=>`
+    <div class="prod-card">
+      <div class="thumb">${p.name}<br><span class="demo-tag">${p.sponsored?'PATROCINADO':'PARCEIRO VESTRA'} · demonstração</span></div>
+      <div class="meta">
+        <h4>${p.name}</h4><div class="brand">${p.brand} · ${p.category}</div>
+        <div class="price">R$ ${p.price.toFixed(2).replace('.',',')} ${p.oldPrice?`<span style="text-decoration:line-through;color:var(--steel);font-size:.7rem;">R$ ${p.oldPrice.toFixed(2).replace('.',',')}</span>`:''}</div>
+        <div class="rating">★ ${p.rating}</div>
+        <div class="btnrow"><button style="flex:none;width:100%" onclick="openPartnerProduct('${p.id}')">VER PRODUTO</button></div>
+      </div>
+    </div>`).join('') : '<div class="empty">Nenhum produto nesta categoria ainda.</div>';
+}
+function openPartnerProduct(id){
+  const p=PARTNER_PRODUCTS.find(x=>x.id===id); if(!p) return;
+  if(!p.storeUrl || p.storeUrl==='#'){ alert('Produto de demonstração — quando a loja parceira real for cadastrada, este botão leva direto ao site dela.'); return; }
+  window.open(p.storeUrl,'_blank','noopener');
+}
+function renderPartnersStores(){
+  const el=document.getElementById('partnersStores'); if(!el) return;
+  el.innerHTML=PARTNER_STORES.map(s=>`
+    <div class="store-card">
+      <div class="store-logo">${s.name[0]}</div>
+      <h3 style="font-size:.95rem;">${s.name}</h3>
+      <div style="font-size:.75rem;color:var(--steel);">${s.cats}</div>
+      <span class="demo-tag">Loja de demonstração</span>
+      <button class="btn btn-ghost" onclick="alert('Perfil de loja parceira: disponível quando o cadastro real de parceiros existir.')">VER LOJA</button>
+    </div>`).join('');
+}
+
+/* ---------- VESTRA FOUNDING CREATORS ----------
+   Candidatura fica salva localmente com status "Pendente". A aprovação real
+   precisa de um administrador com acesso a um backend — não existe like aqui,
+   então o status nunca muda sozinho, exatamente para não fingir uma aprovação. */
+function renderCreators(){
+  const el=document.getElementById('creatorsBody'); if(!el) return;
+  const app=profile.creatorApplication;
+  if(!app){
+    el.innerHTML=`
+      <p style="color:var(--silver);max-width:520px;margin-bottom:1.4rem;">Programa inicial de 90 dias · comissão de 20% sobre assinaturas PRO e BLACK pagas e válidas.</p>
+      <div class="meas-card" style="max-width:480px;">
+        <div class="field"><label>Nome</label><input id="fc-name"></div>
+        <div class="field"><label>E-mail</label><input id="fc-email" type="email"></div>
+        <div class="field-row">
+          <div class="field"><label>Instagram</label><input id="fc-ig" placeholder="@usuario"></div>
+          <div class="field"><label>TikTok</label><input id="fc-tiktok" placeholder="@usuario"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>YouTube</label><input id="fc-yt" placeholder="canal (opcional)"></div>
+          <div class="field"><label>Seguidores (aprox.)</label><input id="fc-followers" type="number"></div>
+        </div>
+        <div class="field"><label>Nicho</label><input id="fc-niche" placeholder="Ex: moda, beleza, lifestyle"></div>
+        <div class="field"><label>Como pretende divulgar a VESTRA</label><textarea id="fc-plan" rows="3"></textarea></div>
+        <button class="btn btn-primary" style="width:100%" onclick="submitCreatorApplication()">QUERO SER FOUNDING CREATOR</button>
+      </div>`;
+    return;
+  }
+  const statusColor = app.status==='Aprovado'?'var(--holo1)':app.status==='Recusado'?'#ff9a9a':'var(--silver)';
+  el.innerHTML=`
+    <div class="myplan-card" style="max-width:560px;">
+      <div class="myplan-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="stat"><b style="color:${statusColor}">${app.status}</b><span>STATUS DA CANDIDATURA</span></div>
+        <div class="stat"><b>${app.appliedAt}</b><span>ENVIADA EM</span></div>
+      </div>
+      <p class="note">A aprovação depende da equipe VESTRA — o próprio usuário não pode aprovar a própria candidatura.</p>
+    </div>
+    ${app.status==='Aprovado' ? renderCreatorDashboard(app) : ''}`;
+}
+function submitCreatorApplication(){
+  const name=val('fc-name'), email=val('fc-email');
+  if(!name||!email){ alert('Preencha ao menos nome e e-mail.'); return; }
+  profile.creatorApplication={
+    name, email, instagram:val('fc-ig'), tiktok:val('fc-tiktok'), youtube:val('fc-yt'),
+    followers:val('fc-followers'), niche:val('fc-niche'), plan:val('fc-plan'),
+    status:'Pendente', appliedAt:new Date().toISOString().slice(0,10)
+  };
+  persist(); renderCreators();
+}
+function renderCreatorDashboard(app){
+  const code=app.referralCode || ('VESTRA-'+(profile.name||'CREATOR').slice(0,4).toUpperCase()+Math.floor(Math.random()*900+100));
+  if(!app.referralCode){ app.referralCode=code; persist(); }
+  const link=`vestra.com/?ref=${code}`;
+  return `
+    <div class="myplan-card" style="max-width:560px;">
+      <h3 style="font-size:.95rem;margin-bottom:.8rem;">Seu link exclusivo</h3>
+      <div class="checkout-row"><span>${link}</span><button class="btn btn-ghost" onclick="navigator.clipboard&&navigator.clipboard.writeText('${link}');alert('Link copiado.')">COPIAR LINK</button></div>
+      <div class="myplan-grid" style="margin-top:1rem;">
+        <div class="stat"><b>0</b><span>CLIQUES</span></div>
+        <div class="stat"><b>0</b><span>CADASTROS</span></div>
+        <div class="stat"><b>0</b><span>ASSINATURAS</span></div>
+        <div class="stat"><b>R$ 0,00</b><span>RECEITA GERADA</span></div>
+        <div class="stat"><b>R$ 0,00</b><span>COMISSÃO ESTIMADA</span></div>
+        <div class="stat"><b>R$ 0,00</b><span>SALDO DISPONÍVEL</span></div>
+      </div>
+      <p class="note">Nenhum dado disponível ainda — os números aparecem aqui assim que houver cliques e assinaturas reais através do seu link (isso depende do sistema de afiliados no backend).</p>
+    </div>`;
+}
+
+/* ---------- VESTRA EARLY ACCESS ---------- */
+function renderEarlyAccess(){
+  const el=document.getElementById('earlyAccessBody'); if(!el) return;
+  const done=localStorage.getItem('vestra_early_access');
+  if(done){ el.innerHTML=`<p style="text-align:center;color:var(--silver);">Você está na lista — te avisamos assim que o acesso antecipado abrir.</p>`; return; }
+  el.innerHTML=`
+    <div class="field"><label>Nome</label><input id="ea-name"></div>
+    <div class="field"><label>E-mail</label><input id="ea-email" type="email"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="submitEarlyAccess()">QUERO ACESSO ANTECIPADO</button>`;
+}
+function submitEarlyAccess(){
+  const name=val('ea-name'), email=val('ea-email');
+  if(!name||!email){ alert('Preencha nome e e-mail.'); return; }
+  const list=JSON.parse(localStorage.getItem('vestra_waitlist')||'[]');
+  list.push({name,email,date:new Date().toISOString()});
+  localStorage.setItem('vestra_waitlist',JSON.stringify(list));
+  localStorage.setItem('vestra_early_access','1');
+  renderEarlyAccess();
+}
+
 function renderBeautyCats(){
   const el=document.getElementById('beautyCats'); if(!el) return;
   el.innerHTML=BEAUTY_CATS.map(c=>`<div class="beauty-cat">${c.icon}<br>${c.name}</div>`).join('');
@@ -1375,7 +1700,62 @@ function renderProfile(){
   document.getElementById('statLooks').textContent=looks.length;
   if(!profile.plan){ profile.plan='free'; profile.planStatus='ativo'; profile.credits=3; }
   renderMyPlan();
+  renderAddresses();
   persist();
+}
+
+/* ---------- MEUS ENDEREÇOS ---------- */
+let editingAddressId=null;
+function renderAddresses(){
+  const el=document.getElementById('addressList'); if(!el) return;
+  const list=profile.addresses||[];
+  el.innerHTML = list.length ? list.map(a=>`
+    <div class="checkout-row" style="align-items:flex-start;">
+      <div>
+        <b>${a.label}</b>${a.primary?' <span class="badge-current" style="margin-left:.4rem;">PRINCIPAL</span>':''}<br>
+        <span style="color:var(--steel);font-size:.82rem;">${a.street} · ${a.district}<br>${a.city}/${a.state} · ${a.zip}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.3rem;align-items:flex-end;">
+        ${a.primary?'':`<button class="del-link" onclick="setPrimaryAddress('${a.id}')">Tornar principal</button>`}
+        <button class="del-link" onclick="editAddress('${a.id}')">Editar</button>
+        <button class="del-link" onclick="deleteAddress('${a.id}')">Remover</button>
+      </div>
+    </div>`).join('') : '<div class="empty">Nenhum endereço cadastrado ainda.</div>';
+}
+function openAddressModal(){
+  editingAddressId=null;
+  ['addr-label','addr-street','addr-district','addr-zip','addr-city','addr-state'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('addressModal').classList.add('active');
+}
+function editAddress(id){
+  const a=(profile.addresses||[]).find(x=>x.id===id); if(!a) return;
+  editingAddressId=id;
+  document.getElementById('addr-label').value=a.label;
+  document.getElementById('addr-street').value=a.street;
+  document.getElementById('addr-district').value=a.district;
+  document.getElementById('addr-zip').value=a.zip;
+  document.getElementById('addr-city').value=a.city;
+  document.getElementById('addr-state').value=a.state;
+  document.getElementById('addressModal').classList.add('active');
+}
+function saveAddress(){
+  profile.addresses=profile.addresses||[];
+  const data={label:val('addr-label')||'Endereço',street:val('addr-street'),district:val('addr-district'),zip:val('addr-zip'),city:val('addr-city'),state:val('addr-state')};
+  if(editingAddressId){
+    const a=profile.addresses.find(x=>x.id===editingAddressId); Object.assign(a,data);
+  }else{
+    profile.addresses.push({id:'addr'+Date.now(), primary:profile.addresses.length===0, ...data});
+  }
+  persist(); closeModal(); renderAddresses();
+}
+function deleteAddress(id){
+  profile.addresses=(profile.addresses||[]).filter(a=>a.id!==id);
+  if(profile.addresses.length && !profile.addresses.some(a=>a.primary)) profile.addresses[0].primary=true;
+  persist(); renderAddresses();
+}
+function setPrimaryAddress(id){
+  (profile.addresses||[]).forEach(a=>a.primary=(a.id===id));
+  persist(); renderAddresses();
 }
 
 /* ---------- INIT ---------- */
