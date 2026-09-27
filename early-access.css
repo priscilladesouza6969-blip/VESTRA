@@ -1,0 +1,87 @@
+.early-access-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(100, 150, 255, 0.16),
+      transparent 45%
+    ),
+    #050505;
+  color: white;
+}
+
+.early-access-card {
+  width: min(430px, 100%);
+  text-align: center;
+}
+
+.early-access-logo {
+  font-size: 2rem;
+  letter-spacing: 0.35em;
+  margin-bottom: 2rem;
+}
+
+.early-access-kicker {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  opacity: 0.65;
+  margin-bottom: 1rem;
+}
+
+.early-access-card h1 {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1.05;
+  margin: 0 0 1rem;
+}
+
+.early-access-card p {
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+#earlyAccessForm {
+  display: grid;
+  gap: 0.8rem;
+}
+
+#earlyAccessForm input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  color: white;
+  border-radius: 4px;
+  outline: none;
+}
+
+#earlyAccessForm input:focus {
+  border-color: rgba(150, 180, 255, 0.65);
+}
+
+#earlyAccessForm button {
+  width: 100%;
+  margin-top: 0.4rem;
+}
+
+#earlyAccessStatus {
+  min-height: 1.5rem;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.early-access-card small {
+  display: block;
+  margin-top: 1.5rem;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.5;
+}
