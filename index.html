@@ -322,9 +322,58 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
   width:42px; height:42px; border-radius:50%; background:rgba(10,10,10,.7); border:1px solid var(--line);
   backdrop-filter:blur(8px); color:var(--paper); font-size:1.05rem; display:flex; align-items:center; justify-content:center;}
 .fullscreen-btn:active{transform:scale(.94);}
+/* ================= BORDA FUTURISTA — TODOS OS BOTÕES =================
+   Anel independente (::after), fora da caixa do botão. Não toca em
+   tamanho, padding, fundo ou posição de nenhum botão existente. */
+button{position:relative;}
+button::after{
+  content:''; position:absolute; inset:-2px; z-index:2; pointer-events:none;
+  border-radius:inherit;
+  outline:1px solid rgba(190,212,255,.4);
+  box-shadow:0 0 6px rgba(178,150,255,.16), 0 0 1px rgba(255,255,255,.25) inset;
+  transition:outline-color .25s ease, box-shadow .3s ease;
+  animation:vestraBtnGlow 4.6s ease-in-out infinite;
+}
+@keyframes vestraBtnGlow{
+  0%,100%{ outline-color:rgba(190,212,255,.38); box-shadow:0 0 6px rgba(178,150,255,.16); }
+  50%{ outline-color:rgba(222,205,255,.55); box-shadow:0 0 12px rgba(160,205,255,.28); }
+}
+button:hover::after, button:focus-visible::after{
+  outline-color:rgba(228,214,255,.85);
+  box-shadow:0 0 16px rgba(180,215,255,.4), 0 0 1px rgba(255,255,255,.4) inset;
+}
+button:active::after{
+  outline-color:rgba(255,255,255,.95);
+  box-shadow:0 0 18px rgba(255,255,255,.45);
+}
+@media(prefers-reduced-motion:reduce){ button::after{animation:none;} }
+/* ================= EARLY ACCESS GATE ================= */
+body.no-access > header, body.no-access > main, body.no-access > footer, body.no-access #fullscreenBtn { display:none !important; }
+.ea-gate{display:none; position:fixed; inset:0; z-index:9998; align-items:center; justify-content:center; padding:1.5rem;
+  background:radial-gradient(60% 60% at 50% 40%, #0d0d10, #000 75%);}
+body.no-access .ea-gate{display:flex;}
+.ea-gate-box{max-width:420px; width:100%; text-align:center;}
+.ea-gate-box .logo-big{font-family:'Bodoni Moda',serif; font-size:2.2rem; letter-spacing:.28em; padding-left:.28em; margin-bottom:.6rem;}
+.ea-gate-box .eyebrow{justify-content:center;}
+.ea-gate-box p{color:var(--silver); font-size:.9rem; margin-bottom:1.8rem; line-height:1.6;}
+.ea-gate-box .field{text-align:left; margin-bottom:.9rem;}
+.ea-error{color:#ff9a9a; font-size:.78rem; min-height:1.1em; margin-bottom:.6rem;}
 </style>
 </head>
 <body>
+<script>if(localStorage.getItem('vestra_access_granted')!=='1'){document.body.classList.add('no-access');}</script>
+
+<div class="ea-gate" id="earlyAccessGate">
+  <div class="ea-gate-box">
+    <div class="logo-big">VESTRA</div>
+    <div class="eyebrow" style="color:var(--holo2);margin-bottom:1rem;display:flex;">EARLY ACCESS</div>
+    <p>A próxima forma de experimentar moda está chegando.<br>Cadastre-se com nome e e-mail para entrar.</p>
+    <div class="field"><label>Nome</label><input id="eag-name" placeholder="Seu nome"></div>
+    <div class="field"><label>E-mail</label><input id="eag-email" type="email" placeholder="seu@email.com"></div>
+    <div class="ea-error" id="eagError"></div>
+    <button class="btn btn-primary" style="width:100%" id="eagSubmitBtn" onclick="submitEarlyAccessGate()">QUERO ACESSO ANTECIPADO</button>
+  </div>
+</div>
 
 <div id="vestraSpotlight" aria-hidden="true"></div>
 <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" aria-label="Tela cheia" title="Tela cheia">⛶</button>
@@ -763,6 +812,39 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
 </div>
 
 <script>
+/* ---------- EARLY ACCESS GATE (Fase 1) ---------- */
+function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+async function submitEarlyAccessGate(){
+  const name=document.getElementById('eag-name').value.trim();
+  const email=document.getElementById('eag-email').value.trim();
+  const errEl=document.getElementById('eagError');
+  if(!name||!email){ errEl.textContent='Preencha nome e e-mail.'; return; }
+  if(!validEmail(email)){ errEl.textContent='Digite um e-mail válido.'; return; }
+  errEl.textContent='';
+  const btn=document.getElementById('eagSubmitBtn'); const originalLabel=btn.textContent;
+  btn.disabled=true; btn.textContent='ENVIANDO...';
+  let registered=false;
+  try{
+    const res=await fetch('/api/early-access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email})});
+    registered=res.ok;
+  }catch(e){ registered=false; }
+  if(!registered){
+    try{
+      const list=JSON.parse(localStorage.getItem('vestra_waitlist')||'[]');
+      list.push({name,email,date:new Date().toISOString(),source:'gate'});
+      localStorage.setItem('vestra_waitlist',JSON.stringify(list));
+    }catch(e){}
+  }
+  try{
+    profile.name = profile.name || name;
+    profile.email = email;
+    persist();
+  }catch(e){}
+  localStorage.setItem('vestra_access_granted','1');
+  btn.disabled=false; btn.textContent=originalLabel;
+  document.body.classList.remove('no-access');
+}
+
 /* ---------- FUNDO INTERATIVO (mouse + toque) ---------- */
 (function initSpotlight(){
   const root=document.documentElement;
@@ -1082,15 +1164,24 @@ async function askVestraIntelligence(text){
   const sample=await getSample();
   if(!sample) return null;
   try{
-    const historyText=[...document.querySelectorAll('#chatMsgs .msg')].slice(-10).map(m=>(m.classList.contains('user')?'Cliente: ':'VESTRA: ')+m.textContent).join('\n')||'(sem histórico ainda)';
-    const closetList=closet.slice(0,40).map(p=>`${p.name} (${p.cat||p.category||'peça'}, cor ${p.color||'—'}, tam ${p.size||'—'}${p.fav?', favorita':''})`).join('; ')||'closet vazio no momento';
-    const prompt=`Você é a VESTRA AI Stylist: uma consultora de moda e beleza de altíssimo nível, com o refinamento de uma estilista de casa de luxo europeia e o conhecimento técnico de uma editora de moda. Você entende profundamente de silhueta, caimento, colorimetria pessoal, tecidos, tendências atuais e atemporais, styling por tipo de corpo e ocasião, e como compor looks equilibrados. Seu tom é caloroso, elegante, confiante e direto — nunca robótico, nunca genérico, nunca um formulário de perguntas. Fale em português do Brasil, em respostas curtas (2 a 5 frases).
+    const historyText=[...document.querySelectorAll('#chatMsgs .msg')].slice(-20).map(m=>(m.classList.contains('user')?'Cliente: ':'VESTRA: ')+m.textContent).join('\n')||'(sem histórico ainda — é a primeira mensagem desta conversa)';
+    const closetList=closet.slice(0,60).map(p=>`${p.name} (${p.cat||p.category||'peça'}, cor ${p.color||'—'}, tam ${p.size||'—'}${p.fav?', favorita':''})`).join('; ')||'closet vazio no momento';
+    const m=profile.measures||{};
+    const measuresText=Object.keys(m).length ? `Altura ${m.altura||'—'}cm, busto ${m.busto||'—'}cm, cintura ${m.cintura||'—'}cm, quadril ${m.quadril||'—'}cm, ombros ${m.ombros||'—'}cm, tamanho habitual ${m.tam||'—'}.` : 'a pessoa ainda não informou suas medidas.';
+    const prompt=`Você é a VESTRA AI Stylist: uma consultora de moda e beleza de altíssimo nível, com o refinamento de uma estilista de casa de luxo europeia e o conhecimento técnico de uma editora de moda sênior. Domina profundamente: silhueta e como cada corte cai em diferentes tipos de corpo, colorimetria pessoal (cores quentes/frias, contraste, tom de pele), tecidos e como se comportam (caimento, estrutura, textura), tendências atuais e peças atemporais, styling por ocasião (trabalho, festa, casual, eventos), e como montar looks com equilíbrio de proporção e cor. Você raciocina como uma stylist de verdade: cruza o que a pessoa pede com o que ela JÁ tem no closet e com as medidas dela antes de responder, em vez de dar conselhos genéricos.
+
+REGRAS DE CONVERSA — leia com atenção:
+- Leia todo o histórico abaixo antes de responder. Continue o raciocínio de onde a conversa parou; nunca se repita, nunca ignore o que o cliente já disse nesta conversa, nunca pergunte de novo algo que ele já respondeu.
+- Se o cliente fizer uma pergunta vaga logo após ter dado contexto (ex: "e pra hoje?"), interprete usando o que já foi dito, não peça esclarecimento à toa.
+- Se a pergunta for sobre tamanho/caimento, use as medidas informadas para dar uma estimativa real, não apenas "depende do tecido".
+- Se a pergunta for sobre montar um look, cite peças específicas do guarda-roupa listado quando existirem, em vez de falar em termos abstratos.
+- Tom: caloroso, elegante, confiante, direto — nunca robótico, nunca genérico, nunca um formulário de perguntas. Português do Brasil, respostas curtas (2 a 5 frases), naturais como uma conversa real.
 
 Guarda-roupa da pessoa: ${closetList}
-Memória de estilo já aprendida: ${memorySummary()}
-Medidas informadas: ${JSON.stringify(profile.measures||{})}
+Memória de estilo já aprendida sobre essa pessoa: ${memorySummary()}
+Medidas: ${measuresText}
 
-Histórico recente da conversa:
+Histórico recente desta conversa (mais antigas primeiro):
 ${historyText}
 
 Mensagem atual do cliente: "${text}"
@@ -1098,7 +1189,7 @@ Mensagem atual do cliente: "${text}"
 Responda SOMENTE em JSON válido, neste formato exato, sem markdown, sem crases:
 {"reply":"sua resposta em texto","actions":[]}
 Preencha "actions" apenas quando fizer sentido controlar a interface, com objetos destes tipos: {"type":"open_view","view":"closet|fitting|look|plans|profile|beauty|measures"}, {"type":"filter_closet","query":"...","category":"..."}, {"type":"favorite_piece","pieceIds":["..."]}, {"type":"create_look","pieceIds":["..."]}, {"type":"start_fitting","pieceIds":["..."]}, {"type":"clear_look"}, {"type":"save_look"}. Nunca invente peças que não estão listadas no guarda-roupa acima.`;
-    const data=await sample.json(prompt,{modelTier:'quick',cache:false});
+    const data=await sample.json(prompt,{modelTier:'default',cache:false});
     if(data && typeof data.reply==='string') return {reply:data.reply, actions:Array.isArray(data.actions)?data.actions:[]};
     return null;
   }catch(e){ return null; }
