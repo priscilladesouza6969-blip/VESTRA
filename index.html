@@ -318,7 +318,7 @@ footer{border-top:1px solid var(--line); padding:2.5rem 1.5rem; color:var(--stee
   animation:magicWorld 16s ease-in-out infinite alternate;
 }
 @media(prefers-reduced-motion:reduce){#vestraSpotlight{animation:none;}}
-.fullscreen-btn{position:fixed; right:14px; z-index:60; bottom:calc(14px + env(safe-area-inset-bottom,0px));
+.fullscreen-btn{position:fixed; left:14px; z-index:60; bottom:calc(14px + env(safe-area-inset-bottom,0px));
   width:42px; height:42px; border-radius:50%; background:rgba(10,10,10,.7); border:1px solid var(--line);
   backdrop-filter:blur(8px); color:var(--paper); font-size:1.05rem; display:flex; align-items:center; justify-content:center;}
 .fullscreen-btn:active{transform:scale(.94);}
@@ -348,7 +348,7 @@ button:active::after{
 }
 @media(prefers-reduced-motion:reduce){ button::after{animation:none;} }
 /* ================= EARLY ACCESS GATE ================= */
-body.no-access > header, body.no-access > main, body.no-access > footer, body.no-access #fullscreenBtn { display:none !important; }
+body.no-access > header, body.no-access > main, body.no-access > footer, body.no-access #fullscreenBtn, body.no-access #vestraOrb, body.no-access #orbMenu { display:none !important; }
 .ea-gate{display:none; position:fixed; inset:0; z-index:9998; align-items:center; justify-content:center; padding:1.5rem;
   background:radial-gradient(60% 60% at 50% 40%, #0d0d10, #000 75%);}
 body.no-access .ea-gate{display:flex;}
@@ -957,7 +957,7 @@ function deletePiece(id){ closet=closet.filter(x=>x.id!==id); persist(); renderC
 function openAddPiece(){ tempPieceImg=null; document.getElementById('pieceImgPreview').style.display='none'; document.getElementById('pieceImgHint').style.display='block';
   ['p-name','p-color','p-size'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pieceModal').classList.add('active'); }
-function closeModal(){ document.getElementById('pieceModal').classList.remove('active'); document.getElementById('pickerModal').classList.remove('active'); document.getElementById('addressModal')?.classList.remove('active'); }
+function closeModal(){ document.getElementById('pieceModal').classList.remove('active'); document.getElementById('pickerModal').classList.remove('active'); document.getElementById('addressModal')?.classList.remove('active'); document.getElementById('beautyProductModal')?.classList.remove('active'); }
 function previewPieceImg(e){ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
   r.onload=()=>{ tempPieceImg=r.result; const img=document.getElementById('pieceImgPreview'); img.src=tempPieceImg; img.style.display='block'; document.getElementById('pieceImgHint').style.display='none'; }; r.readAsDataURL(f); }
 function savePiece(){
@@ -1196,10 +1196,12 @@ Preencha "actions" apenas quando fizer sentido controlar a interface, com objeto
 }
 async function askStylistAPI(text){
   try{
-    const history=[...document.querySelectorAll('#chatMsgs .msg')].slice(-12).map(m=>({role:m.classList.contains('user')?'user':'assistant',content:m.textContent}));
-    const res=await fetch(VESTRA_CONFIG.aiEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history,profile:{name:profile.name||'',styleMemory:getStyleMemory(),measures:profile.measures||{}},closet:closet.slice(0,60).map(p=>({id:p.id,name:p.name,category:p.cat||p.category,color:p.color,size:p.size,fav:!!p.fav,img:!!p.img}))})});
+    // A última mensagem do chat já é a atual (enviada em "message"), então fica fora do histórico.
+    const history=[...document.querySelectorAll('#chatMsgs .msg')].slice(0,-1).slice(-12).map(m=>({role:m.classList.contains('user')?'user':'assistant',content:m.textContent}));
+    const actionContext={view:document.querySelector('.view.active')?.id.replace('view-','')||'',fittingPieces:fittingSelected.map(p=>p.id),lookPieces:lookSlots.filter(Boolean).map(p=>p.id),hasPhoto:!!userPhoto};
+    const res=await fetch(VESTRA_CONFIG.aiEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history,actionContext,profile:{name:profile.name||'',styleMemory:getStyleMemory(),measures:profile.measures||{}},closet:closet.slice(0,60).map(p=>({id:p.id,name:p.name,category:p.cat||p.category,color:p.color,size:p.size,fav:!!p.fav,img:!!p.img}))})});
     const data=await res.json().catch(()=>({}));
-    if(res.ok&&data.reply)return data;
+    if(res.ok&&data.reply)return {reply:data.reply,actions:Array.isArray(data.actions)?data.actions:(data.action?[data.action]:[])};
     throw new Error(data.error||'A VESTRA AI própria ainda não está conectada.');
   }catch(e){
     const smart=await askVestraIntelligence(text);
@@ -1210,7 +1212,7 @@ async function askStylistAPI(text){
 function executeAIAction(action){
   if(!action||!action.type)return;
   const ids=Array.isArray(action.pieceIds)?action.pieceIds:[];
-  if(action.type==='open_view'&&action.view){showView(action.view);return;}
+  if(action.type==='open_view'&&action.view){if(document.getElementById('view-'+action.view))showView(action.view);return;}
   if(action.type==='filter_closet'){
     showView('closet');
     setTimeout(()=>{
