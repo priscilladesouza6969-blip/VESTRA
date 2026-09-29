@@ -1,3 +1,5 @@
+import { guard } from './_guard.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({
@@ -5,12 +7,20 @@ export default async function handler(req, res) {
     });
   }
 
+  if (!guard(req, res, { name: 'early-access', limit: 5 })) return;
+
   try {
     const { name, email } = req.body || {};
 
     if (!name || !email) {
       return res.status(400).json({
         error: 'Nome e e-mail são obrigatórios'
+      });
+    }
+
+    if (String(name).length > 100 || String(email).length > 254) {
+      return res.status(400).json({
+        error: 'Nome ou e-mail muito longo'
       });
     }
 

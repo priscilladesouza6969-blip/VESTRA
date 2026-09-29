@@ -1,4 +1,5 @@
 ﻿const { fal } = await import("@fal-ai/client");
+import { guard, isImageInput } from "./_guard.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -7,12 +8,20 @@ export default async function handler(req, res) {
     });
   }
 
+  if (!guard(req, res, { name: "generate-fitting", limit: 6 })) return;
+
   try {
     const { personImage, clothingImage } = req.body || {};
 
     if (!personImage || !clothingImage) {
       return res.status(400).json({
         error: "É necessário enviar a foto da pessoa e a foto da roupa."
+      });
+    }
+
+    if (!isImageInput(personImage) || !isImageInput(clothingImage)) {
+      return res.status(400).json({
+        error: "Imagem inválida. Envie fotos em JPG, PNG ou WEBP."
       });
     }
 

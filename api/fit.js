@@ -1,4 +1,7 @@
 ﻿const { fal } = await import("@fal-ai/client");
+import { guard, isImageInput } from "./_guard.js";
+
+const MAX_GARMENTS = 4;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -6,6 +9,8 @@ export default async function handler(req, res) {
       error: "Método não permitido"
     });
   }
+
+  if (!guard(req, res, { name: "fit", limit: 6 })) return;
 
   try {
     const { personImage, garmentImages } = req.body || {};
@@ -19,6 +24,18 @@ export default async function handler(req, res) {
     if (!Array.isArray(garmentImages) || garmentImages.length === 0) {
       return res.status(400).json({
         error: "É necessário enviar pelo menos uma peça."
+      });
+    }
+
+    if (garmentImages.length > MAX_GARMENTS) {
+      return res.status(400).json({
+        error: `Envie no máximo ${MAX_GARMENTS} peças por vez.`
+      });
+    }
+
+    if (!isImageInput(personImage) || !garmentImages.every((image) => isImageInput(image))) {
+      return res.status(400).json({
+        error: "Imagem inválida. Envie fotos em JPG, PNG ou WEBP."
       });
     }
 

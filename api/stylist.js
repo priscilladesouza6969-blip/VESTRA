@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { guard } from "./_guard.js";
 
 const DEFAULT_MODEL = "gpt-5.6-luna";
 
@@ -151,6 +152,8 @@ export default async function handler(req, res) {
       error: "Método não permitido"
     });
   }
+
+  if (!guard(req, res, { name: "stylist", limit: 30 })) return;
 
   try {
     const data = normalizeBody(req.body || {});

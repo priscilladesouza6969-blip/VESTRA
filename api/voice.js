@@ -1,8 +1,7 @@
 import OpenAI from "openai";
+import { guard } from "./_guard.js";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const MAX_TEXT = 1000;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -11,14 +10,33 @@ export default async function handler(req, res) {
     });
   }
 
+  if (!guard(req, res, { name: "voice", limit: 20 })) return;
+
   try {
     const { text } = req.body || {};
 
-    if (!text) {
+    if (!text || typeof text !== "string") {
       return res.status(400).json({
         error: "Texto não enviado."
       });
     }
+
+    if (text.length > MAX_TEXT) {
+      return res.status(400).json({
+        error: `Texto muito longo (máximo ${MAX_TEXT} caracteres).`
+      });
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("[VESTRA VOZ] OPENAI_API_KEY não configurada.");
+      return res.status(500).json({
+        error: "OPENAI_API_KEY não configurada no Vercel."
+      });
+    }
+
+    const client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
 
     const response = await client.audio.speech.create({
       model: "gpt-4o-mini-tts",
