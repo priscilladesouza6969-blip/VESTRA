@@ -1,5 +1,6 @@
 ﻿const { fal } = await import("@fal-ai/client");
 import { guard, isImageInput } from "./_guard.js";
+import { requireUser } from "./_auth.js";
 
 const MAX_GARMENTS = 4;
 
@@ -11,6 +12,8 @@ export default async function handler(req, res) {
   }
 
   if (!guard(req, res, { name: "fit", limit: 6 })) return;
+
+  if (!(await requireUser(req, res))) return;
 
   try {
     const { personImage, garmentImages } = req.body || {};

@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <style>
 :root{
   --black:#0a0a0a; --ink:#141414; --paper:#f4f4f2; --steel:#8a8c8e; --silver:#d4d6d8;
@@ -358,20 +359,43 @@ body.no-access .ea-gate{display:flex;}
 .ea-gate-box p{color:var(--silver); font-size:.9rem; margin-bottom:1.8rem; line-height:1.6;}
 .ea-gate-box .field{text-align:left; margin-bottom:.9rem;}
 .ea-error{color:#ff9a9a; font-size:.78rem; min-height:1.1em; margin-bottom:.6rem;}
+.ea-error.ok{color:var(--holo1);}
+/* LOGIN (Supabase) */
+.ea-gate{overflow-y:auto;}
+.auth-tabs{display:flex; gap:.5rem; justify-content:center; margin-bottom:1.4rem;}
+.auth-divider{display:flex; align-items:center; gap:.8rem; color:var(--steel); font-size:.72rem; letter-spacing:.12em; margin:1.2rem 0;}
+.auth-divider::before,.auth-divider::after{content:''; flex:1; border-top:1px solid var(--line);}
+.auth-link{display:block; margin:1rem auto 0; font-size:.78rem; color:var(--steel); text-decoration:underline;}
+.auth-link:hover{color:var(--paper);}
+.auth-link::after{display:none;}
+.badge-owner{display:inline-block; font-size:.62rem; letter-spacing:.14em; padding:.2rem .55rem; border:1px solid var(--holo2); color:var(--holo2); border-radius:20px; margin-left:.4rem; vertical-align:middle;}
 </style>
 </head>
 <body>
-<script>if(localStorage.getItem('vestra_access_granted')!=='1'){document.body.classList.add('no-access');}</script>
+<script>document.body.classList.add('no-access');</script>
 
 <div class="ea-gate" id="earlyAccessGate">
   <div class="ea-gate-box">
     <div class="logo-big">VESTRA</div>
-    <div class="eyebrow" style="color:var(--holo2);margin-bottom:1rem;display:flex;">EARLY ACCESS</div>
-    <p>A próxima forma de experimentar moda está chegando.<br>Cadastre-se com nome e e-mail para entrar.</p>
-    <div class="field"><label>Nome</label><input id="eag-name" placeholder="Seu nome"></div>
-    <div class="field"><label>E-mail</label><input id="eag-email" type="email" placeholder="seu@email.com"></div>
-    <div class="ea-error" id="eagError"></div>
-    <button class="btn btn-primary" style="width:100%" id="eagSubmitBtn" onclick="submitEarlyAccessGate()">QUERO ACESSO ANTECIPADO</button>
+    <div class="eyebrow" style="color:var(--holo2);margin-bottom:1rem;display:flex;">TESTE GRÁTIS DE 3 DIAS</div>
+    <p id="authIntro">Carregando...</p>
+    <div class="auth-tabs" id="authTabs" style="display:none;">
+      <button type="button" class="chip" data-mode="login" onclick="setAuthMode('login')">ENTRAR</button>
+      <button type="button" class="chip" data-mode="signup" onclick="setAuthMode('signup')">CRIAR CONTA</button>
+    </div>
+    <form id="authForm" style="display:none;" onsubmit="event.preventDefault(); submitAuth();" novalidate>
+      <div class="field" id="authNameField"><label for="auth-name">Nome</label><input id="auth-name" autocomplete="name" placeholder="Seu nome" maxlength="100"></div>
+      <div class="field" id="authEmailField"><label for="auth-email">E-mail</label><input id="auth-email" type="email" autocomplete="email" placeholder="seu@email.com"></div>
+      <div class="field" id="authPasswordField"><label for="auth-password">Senha</label><input id="auth-password" type="password" autocomplete="current-password" placeholder="Mínimo de 8 caracteres"></div>
+      <div class="ea-error" id="authError" role="alert"></div>
+      <button class="btn btn-primary" style="width:100%" id="authSubmitBtn" type="submit">ENTRAR</button>
+    </form>
+    <div id="authGoogle" style="display:none;">
+      <div class="auth-divider">OU</div>
+      <button type="button" class="btn btn-ghost" style="width:100%" onclick="signInWithGoogle()">CONTINUAR COM GOOGLE</button>
+    </div>
+    <button type="button" class="auth-link" id="authForgotBtn" style="display:none;" onclick="setAuthMode('reset')">Esqueci minha senha</button>
+    <button type="button" class="auth-link" id="authBackBtn" style="display:none;" onclick="setAuthMode('login')">Voltar para entrar</button>
   </div>
 </div>
 
@@ -579,6 +603,11 @@ body.no-access .ea-gate{display:flex;}
           <div class="stat"><b id="statLooks">0</b><span>LOOKS SALVOS</span></div>
         </div>
       </div>
+    </div>
+
+    <div class="myplan-card">
+      <h3 style="font-size:1.05rem;font-weight:500;margin-bottom:.3rem;">Minha Conta</h3>
+      <div id="accountBody"></div>
     </div>
 
     <div class="myplan-card">
@@ -812,38 +841,247 @@ body.no-access .ea-gate{display:flex;}
 </div>
 
 <script>
-/* ---------- EARLY ACCESS GATE (Fase 1) ---------- */
 function validEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
-async function submitEarlyAccessGate(){
-  const name=document.getElementById('eag-name').value.trim();
-  const email=document.getElementById('eag-email').value.trim();
-  const errEl=document.getElementById('eagError');
-  if(!name||!email){ errEl.textContent='Preencha nome e e-mail.'; return; }
-  if(!validEmail(email)){ errEl.textContent='Digite um e-mail válido.'; return; }
-  errEl.textContent='';
-  const btn=document.getElementById('eagSubmitBtn'); const originalLabel=btn.textContent;
-  btn.disabled=true; btn.textContent='ENVIANDO...';
-  let registered=false;
+
+/* ---------- LOGIN + CONTA (Supabase) ----------
+   Login por e-mail/senha ou Google. Closet, looks e preferências ficam no
+   banco (Supabase) e as fotos no armazenamento privado; o localStorage vira
+   só um cache do aparelho. Plano e créditos continuam locais até o Passo 6. */
+let sb=null, currentUser=null, authMode='loading';
+const SB_BUCKET='vestra';
+const PROFILE_SYNC_KEYS=['measures','pieceMeasures','styleMemory','addresses','beautyFavs','savedGenerations','generationHistory','creatorApplication','avatarPath'];
+const synced={closet:new Map(), looks:new Map(), profile:''};
+let syncTimer=null, syncRunning=false, syncAgain=false;
+
+const AUTH_MODES={
+  loading:    {intro:'Carregando...'},
+  unavailable:{intro:'Não foi possível carregar o login agora. Verifique sua conexão e recarregue a página.'},
+  login:      {intro:'Entre na sua conta para acessar seu closet, o provador e a VESTRA AI.', tabs:true, email:true, password:true, submit:'ENTRAR', google:true, forgot:true},
+  signup:     {intro:'Crie sua conta e experimente a VESTRA por 3 dias grátis.', tabs:true, name:true, email:true, password:true, newPassword:true, submit:'CRIAR CONTA', google:true},
+  reset:      {intro:'Informe seu e-mail. Enviaremos um link para você criar uma nova senha.', email:true, submit:'ENVIAR LINK', back:true},
+  newpass:    {intro:'Crie sua nova senha.', password:true, newPassword:true, submit:'SALVAR NOVA SENHA'}
+};
+function setAuthMode(mode){
+  authMode=mode; const m=AUTH_MODES[mode]; const show=(id,on)=>{const el=document.getElementById(id);if(el)el.style.display=on?'':'none';};
+  document.getElementById('authIntro').textContent=m.intro;
+  show('authTabs',m.tabs); show('authForm',!!m.submit); show('authNameField',m.name); show('authEmailField',m.email); show('authPasswordField',m.password);
+  show('authGoogle',m.google); show('authForgotBtn',m.forgot); show('authBackBtn',m.back);
+  document.querySelectorAll('#authTabs .chip').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  document.getElementById('auth-password').setAttribute('autocomplete',m.newPassword?'new-password':'current-password');
+  if(m.submit) document.getElementById('authSubmitBtn').textContent=m.submit;
+  authMessage('');
+}
+function authMessage(text,ok){ const el=document.getElementById('authError'); el.textContent=text||''; el.classList.toggle('ok',!!ok); }
+function translateAuthError(err){
+  const msg=String(err&&err.message||'');
+  if(/invalid login credentials/i.test(msg)) return 'E-mail ou senha incorretos.';
+  if(/email not confirmed/i.test(msg)) return 'Confirme seu e-mail pelo link que enviamos antes de entrar.';
+  if(/already registered|already exists/i.test(msg)) return 'Já existe uma conta com este e-mail. Entre ou use "Esqueci minha senha".';
+  if(/password/i.test(msg)&&/(least|short|weak)/i.test(msg)) return 'A senha precisa ter pelo menos 8 caracteres.';
+  if(/rate limit|too many|security purposes/i.test(msg)) return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+  if(/fetch|network/i.test(msg)) return 'Sem conexão com o servidor. Verifique sua internet.';
+  return 'Não foi possível concluir agora. Tente novamente.';
+}
+function appUrl(){ return location.origin+'/app/'; }
+async function submitAuth(){
+  if(!sb) return;
+  const m=AUTH_MODES[authMode];
+  const name=document.getElementById('auth-name').value.trim();
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  if(m.name&&!name) return authMessage('Informe seu nome.');
+  if(m.email&&!validEmail(email)) return authMessage('Digite um e-mail válido.');
+  if(m.password&&m.newPassword&&password.length<8) return authMessage('A senha precisa ter pelo menos 8 caracteres.');
+  if(m.password&&!password) return authMessage('Digite sua senha.');
+  const btn=document.getElementById('authSubmitBtn'); btn.disabled=true; authMessage('');
   try{
-    const res=await fetch('/api/early-access',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email})});
-    registered=res.ok;
-  }catch(e){ registered=false; }
-  if(!registered){
-    try{
-      const list=JSON.parse(localStorage.getItem('vestra_waitlist')||'[]');
-      list.push({name,email,date:new Date().toISOString(),source:'gate'});
-      localStorage.setItem('vestra_waitlist',JSON.stringify(list));
-    }catch(e){}
-  }
+    if(authMode==='login'){
+      const {error}=await sb.auth.signInWithPassword({email,password}); if(error) throw error;
+    }else if(authMode==='signup'){
+      const {data,error}=await sb.auth.signUp({email,password,options:{data:{name},emailRedirectTo:appUrl()}}); if(error) throw error;
+      if(!data.session){ setAuthMode('login'); document.getElementById('auth-email').value=email; authMessage('Enviamos um link de confirmação para '+email+'. Confirme o e-mail e depois entre.',true); }
+    }else if(authMode==='reset'){
+      const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:appUrl()}); if(error) throw error;
+      setAuthMode('login'); authMessage('Se existir uma conta com este e-mail, enviamos um link para criar uma nova senha.',true);
+    }else if(authMode==='newpass'){
+      const {data,error}=await sb.auth.updateUser({password}); if(error) throw error;
+      setAuthMode('login'); if(data.user) onSignedIn(data.user);
+    }
+  }catch(e){ authMessage(translateAuthError(e)); }
+  finally{ btn.disabled=false; document.getElementById('auth-password').value=''; }
+}
+async function signInWithGoogle(){
+  if(!sb) return;
+  const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:appUrl()}});
+  if(error) authMessage(translateAuthError(error));
+}
+async function signOut(){
+  if(!confirm('Sair da sua conta neste aparelho?')) return;
+  try{ clearTimeout(syncTimer); await syncNow(); }catch(e){}
+  try{ await sb.auth.signOut(); }catch(e){}
+  clearLocalAccount(); location.replace('/app/');
+}
+function clearLocalAccount(){
+  ['vestra_closet','vestra_looks','vestra_profile','vestra_uid'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});
+  closet=[]; looks=[]; profile={};
+}
+async function authHeaders(){
+  const h={'Content-Type':'application/json'};
+  try{ const {data}=await sb.auth.getSession(); if(data.session) h.Authorization='Bearer '+data.session.access_token; }catch(e){}
+  return h;
+}
+async function initAuth(){
+  // Link de "Esqueci minha senha": pede a nova senha antes de liberar o app.
+  setAuthMode(/type=recovery/.test(location.hash)?'newpass':'loading');
   try{
-    profile.name = profile.name || name;
-    profile.email = email;
-    persist();
-  }catch(e){}
-  localStorage.setItem('vestra_access_granted','1');
-  btn.disabled=false; btn.textContent=originalLabel;
+    if(!window.supabase) throw new Error('SDK do Supabase não carregou.');
+    const res=await fetch('/api/config'); const cfg=await res.json().catch(()=>({}));
+    if(!res.ok||!cfg.supabaseUrl) throw new Error(cfg.error||'Configuração indisponível.');
+    sb=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  }catch(e){ console.error('[VESTRA LOGIN]',e); setAuthMode('unavailable'); return; }
+  sb.auth.onAuthStateChange((event,session)=>{
+    // Sem chamadas ao Supabase dentro deste callback (recomendação da biblioteca).
+    if(event==='PASSWORD_RECOVERY'){ document.body.classList.add('no-access'); setAuthMode('newpass'); return; }
+    if(event==='SIGNED_OUT'){ currentUser=null; document.body.classList.add('no-access'); setAuthMode('login'); return; }
+    if(session&&session.user&&authMode!=='newpass') setTimeout(()=>onSignedIn(session.user),0);
+  });
+  const {data}=await sb.auth.getSession();
+  if(!data.session&&(authMode==='loading'||authMode==='newpass')) setAuthMode('login');
+}
+async function onSignedIn(user){
+  if(currentUser&&currentUser.id===user.id) return;
+  currentUser=user;
+  try{ await loadAccount(user); }catch(e){ console.error('[VESTRA CONTA] Falha ao carregar dados da conta:',e); }
+  if(/access_token|refresh_token|error_description/.test(location.hash)||/[?&]code=/.test(location.search)) history.replaceState(null,'',location.pathname);
   document.body.classList.remove('no-access');
 }
+
+/* Converte as linhas do banco <-> objetos usados pela interface. */
+function closetRow(p,uid){ return {user_id:uid,id:String(p.id).slice(0,64),name:String(p.name||'').slice(0,120),category:String(p.cat||p.category||'').slice(0,40),color:String(p.color||'').slice(0,40),size:String(p.size||'').slice(0,20),fav:!!p.fav,image_path:p.imagePath||null}; }
+function lookRow(l,uid){ return {user_id:uid,id:String(l.id).slice(0,64),pieces:(l.pieces||[]).map(String)}; }
+function profileRow(){ const data={}; PROFILE_SYNC_KEYS.forEach(k=>{if(profile[k]!==undefined)data[k]=profile[k];}); return {name:String(profile.name||'').slice(0,100),data}; }
+
+async function loadAccount(user){
+  const uid=user.id;
+  let owner=null; try{ owner=localStorage.getItem('vestra_uid'); }catch(e){}
+  if(owner&&owner!==uid){ closet=[]; looks=[]; profile={}; }
+  const [pr,ci,lk]=await Promise.all([
+    sb.from('profiles').select('name,data').eq('id',uid).maybeSingle(),
+    sb.from('closet_items').select('*').order('created_at'),
+    sb.from('looks').select('*').order('created_at')
+  ]);
+  const err=pr.error||ci.error||lk.error; if(err) throw err;
+  const serverData=(pr.data&&pr.data.data)||{};
+  const serverEmpty=!(ci.data||[]).length&&!(lk.data||[]).length&&!Object.keys(serverData).length;
+  const hasLocal=closet.length||looks.length||PROFILE_SYNC_KEYS.some(k=>profile[k]!==undefined);
+  const migrate=serverEmpty&&!owner&&hasLocal;
+  synced.closet=new Map(); synced.looks=new Map(); synced.profile='';
+  if(migrate){
+    // Primeira entrada neste aparelho: leva para a conta o que estava salvo só no navegador.
+    if(!profile.name&&pr.data&&pr.data.name) profile.name=pr.data.name;
+  }else{
+    const keep={}; if(owner===uid) ['plan','planStatus','credits','nextBilling','paymentHistory'].forEach(k=>{if(profile[k]!==undefined)keep[k]=profile[k];});
+    closet=(ci.data||[]).map(r=>({id:r.id,name:r.name,cat:r.category,color:r.color,size:r.size,fav:r.fav,imagePath:r.image_path||null,img:null}));
+    looks=(lk.data||[]).map(r=>({id:r.id,pieces:r.pieces||[]}));
+    profile={...keep,...serverData,name:(pr.data&&pr.data.name)||''};
+    closet.forEach(p=>synced.closet.set(p.id,JSON.stringify(closetRow(p,uid))));
+    looks.forEach(l=>synced.looks.set(l.id,JSON.stringify(lookRow(l,uid))));
+    synced.profile=JSON.stringify(profileRow());
+  }
+  profile.email=user.email;
+  await refreshSignedUrls();
+  try{ localStorage.setItem('vestra_uid',uid); }catch(e){}
+  try{
+    const r=await fetch('/api/me',{headers:await authHeaders()}); const d=await r.json();
+    if(r.ok&&d.profile){ profile.role=d.profile.role; profile.trialStartedAt=d.profile.trialStartedAt; }
+  }catch(e){}
+  persistLocal(); rerenderAll();
+  if(migrate) await syncNow();
+}
+async function refreshSignedUrls(){
+  const paths=closet.filter(p=>p.imagePath).map(p=>p.imagePath);
+  if(profile.avatarPath) paths.push(profile.avatarPath);
+  if(!paths.length) return;
+  const {data,error}=await sb.storage.from(SB_BUCKET).createSignedUrls(paths,60*60*24);
+  if(error){ console.error('[VESTRA IMAGENS]',error); return; }
+  const urls=new Map((data||[]).filter(d=>d.signedUrl).map(d=>[d.path,d.signedUrl]));
+  closet.forEach(p=>{ if(p.imagePath&&urls.has(p.imagePath)) p.img=urls.get(p.imagePath); });
+  if(profile.avatarPath&&urls.has(profile.avatarPath)) profile.avatar=urls.get(profile.avatarPath);
+}
+function rerenderAll(){
+  document.getElementById('profName').value=profile.name||'';
+  try{renderCloset();}catch(e){console.error('renderCloset',e);}
+  try{renderLookSlots();}catch(e){console.error('renderLookSlots',e);}
+  try{loadMeasures();}catch(e){console.error('loadMeasures',e);}
+  try{renderPlans();}catch(e){console.error('renderPlans',e);}
+  try{renderProfile();}catch(e){console.error('renderProfile',e);}
+  try{refreshCreditsHint();}catch(e){}
+  try{const st=document.getElementById('aiState');if(st)st.innerHTML='VESTRA AI <b>online</b> · memória: '+memorySummary();}catch(e){}
+}
+
+/* Reduz a foto (máx. 1280px, JPEG) antes de enviar: economiza espaço e evita o limite de tamanho da Vercel. */
+function compressImage(dataUrl,max=1280,quality=.85){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const s=Math.min(1,max/Math.max(img.width,img.height)); const c=document.createElement('canvas');
+      c.width=Math.max(1,Math.round(img.width*s)); c.height=Math.max(1,Math.round(img.height*s));
+      const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.drawImage(img,0,0,c.width,c.height);
+      c.toBlob(b=>resolve(b),'image/jpeg',quality);
+    };
+    img.onerror=()=>resolve(null); img.src=dataUrl;
+  });
+}
+function blobToDataUrl(blob){ return new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>resolve(null);r.readAsDataURL(blob);}); }
+async function compressDataUrl(url,max=1600){
+  if(!url||!url.startsWith('data:')) return url;
+  const blob=await compressImage(url,max,.88); return blob?(await blobToDataUrl(blob))||url:url;
+}
+async function uploadImage(path,dataUrl){
+  const blob=await compressImage(dataUrl); if(!blob) throw new Error('Imagem inválida.');
+  const {error}=await sb.storage.from(SB_BUCKET).upload(path,blob,{contentType:'image/jpeg',upsert:true}); if(error) throw error;
+  return path;
+}
+
+function scheduleSync(){ if(!currentUser||!sb) return; clearTimeout(syncTimer); syncTimer=setTimeout(syncNow,600); }
+async function syncNow(){
+  if(!sb||!currentUser) return;
+  if(syncRunning){ syncAgain=true; return; }
+  syncRunning=true;
+  const uid=currentUser.id, removePaths=[];
+  try{
+    for(const p of closet){
+      if(p.img&&p.img.startsWith('data:')&&!p.imagePath) p.imagePath=await uploadImage(`${uid}/closet/${p.id}.jpg`,p.img);
+    }
+    if(profile.avatar&&profile.avatar.startsWith('data:')){
+      if(profile.avatarPath) removePaths.push(profile.avatarPath);
+      profile.avatarPath=await uploadImage(`${uid}/avatar-${Date.now()}.jpg`,profile.avatar);
+    }
+    const rows=closet.map(p=>closetRow(p,uid)), changed=rows.filter(r=>synced.closet.get(r.id)!==JSON.stringify(r));
+    if(changed.length){ const {error}=await sb.from('closet_items').upsert(changed); if(error) throw error; changed.forEach(r=>synced.closet.set(r.id,JSON.stringify(r))); }
+    const goneItems=[...synced.closet.keys()].filter(id=>!closet.some(p=>p.id===id));
+    if(goneItems.length){
+      goneItems.forEach(id=>{const path=JSON.parse(synced.closet.get(id)).image_path;if(path)removePaths.push(path);});
+      const {error}=await sb.from('closet_items').delete().eq('user_id',uid).in('id',goneItems); if(error) throw error;
+      goneItems.forEach(id=>synced.closet.delete(id));
+    }
+    const lrows=looks.map(l=>lookRow(l,uid)), lchanged=lrows.filter(r=>synced.looks.get(r.id)!==JSON.stringify(r));
+    if(lchanged.length){ const {error}=await sb.from('looks').upsert(lchanged); if(error) throw error; lchanged.forEach(r=>synced.looks.set(r.id,JSON.stringify(r))); }
+    const goneLooks=[...synced.looks.keys()].filter(id=>!looks.some(l=>l.id===id));
+    if(goneLooks.length){ const {error}=await sb.from('looks').delete().eq('user_id',uid).in('id',goneLooks); if(error) throw error; goneLooks.forEach(id=>synced.looks.delete(id)); }
+    const pr=profileRow(), prJson=JSON.stringify(pr);
+    if(prJson!==synced.profile){ const {error}=await sb.from('profiles').update(pr).eq('id',uid); if(error) throw error; synced.profile=prJson; }
+    if(removePaths.length){ const {error}=await sb.storage.from(SB_BUCKET).remove(removePaths); if(error) console.warn('[VESTRA IMAGENS] Não foi possível apagar imagens antigas:',error); }
+    persistLocal();
+  }catch(e){
+    console.error('[VESTRA SYNC] Falha ao salvar na conta; nova tentativa em 15s.',e);
+    clearTimeout(syncTimer); syncTimer=setTimeout(syncNow,15000);
+  }finally{
+    syncRunning=false;
+    if(syncAgain){ syncAgain=false; scheduleSync(); }
+  }
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'&&currentUser){ clearTimeout(syncTimer); syncNow(); } });
 
 /* ---------- FUNDO INTERATIVO (mouse + toque) ---------- */
 (function initSpotlight(){
@@ -893,7 +1131,16 @@ let lookSlots=[null,null,null,null,null];
 let userPhoto=null;
 let tempPieceImg=null;
 
-function persist(){ localStorage.setItem('vestra_closet',JSON.stringify(closet)); localStorage.setItem('vestra_looks',JSON.stringify(looks)); localStorage.setItem('vestra_profile',JSON.stringify(profile)); }
+function persist(){ persistLocal(); scheduleSync(); }
+// Cache do aparelho. Fotos que já estão na conta não são guardadas de novo aqui (evita estourar o limite do navegador).
+function persistLocal(){
+  const cacheImg=(img,path)=>path&&img&&img.startsWith('data:')?null:img;
+  try{
+    localStorage.setItem('vestra_closet',JSON.stringify(closet.map(p=>({...p,img:cacheImg(p.img,p.imagePath)}))));
+    localStorage.setItem('vestra_looks',JSON.stringify(looks));
+    localStorage.setItem('vestra_profile',JSON.stringify({...profile,avatar:cacheImg(profile.avatar,profile.avatarPath)}));
+  }catch(e){ console.warn('[VESTRA] Cache local cheio; os dados continuam salvos na conta.',e); }
+}
 
 function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -1066,8 +1313,10 @@ async function generateFitting(){
   panel.innerHTML=`<div class="spinner"></div><div class="gen-status" id="genStatus">${steps[0]}</div>`;
   const statusIv=setInterval(()=>{i=(i+1)%steps.length;const e=document.getElementById('genStatus');if(e)e.textContent=steps[i];},1300);
   try{
-    const res=await fetch(VESTRA_CONFIG.fitEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      userId:profile.id||'anon',personImage:userPhoto,garmentImages:fittingSelected.map(p=>p.img).filter(Boolean),profile:{measures:profile.measures||{},styleMemory:profile.styleMemory||{}}
+    const personImage=await compressDataUrl(userPhoto);
+    const garmentImages=await Promise.all(fittingSelected.map(p=>p.img).filter(Boolean).map(img=>compressDataUrl(img)));
+    const res=await fetch(VESTRA_CONFIG.fitEndpoint,{method:'POST',headers:await authHeaders(),body:JSON.stringify({
+      personImage,garmentImages,profile:{measures:profile.measures||{},styleMemory:profile.styleMemory||{}}
     })});
     const data=await res.json().catch(()=>({}));
     clearInterval(statusIv);
@@ -1199,7 +1448,7 @@ async function askStylistAPI(text){
     // A última mensagem do chat já é a atual (enviada em "message"), então fica fora do histórico.
     const history=[...document.querySelectorAll('#chatMsgs .msg')].slice(0,-1).slice(-12).map(m=>({role:m.classList.contains('user')?'user':'assistant',content:m.textContent}));
     const actionContext={view:document.querySelector('.view.active')?.id.replace('view-','')||'',fittingPieces:fittingSelected.map(p=>p.id),lookPieces:lookSlots.filter(Boolean).map(p=>p.id),hasPhoto:!!userPhoto};
-    const res=await fetch(VESTRA_CONFIG.aiEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history,actionContext,profile:{name:profile.name||'',styleMemory:getStyleMemory(),measures:profile.measures||{}},closet:closet.slice(0,60).map(p=>({id:p.id,name:p.name,category:p.cat||p.category,color:p.color,size:p.size,fav:!!p.fav,img:!!p.img}))})});
+    const res=await fetch(VESTRA_CONFIG.aiEndpoint,{method:'POST',headers:await authHeaders(),body:JSON.stringify({message:text,history,actionContext,profile:{name:profile.name||'',styleMemory:getStyleMemory(),measures:profile.measures||{}},closet:closet.slice(0,60).map(p=>({id:p.id,name:p.name,category:p.cat||p.category,color:p.color,size:p.size,fav:!!p.fav,img:!!p.img}))})});
     const data=await res.json().catch(()=>({}));
     if(res.ok&&data.reply)return {reply:data.reply,actions:Array.isArray(data.actions)?data.actions:(data.action?[data.action]:[])};
     throw new Error(data.error||'A VESTRA AI própria ainda não está conectada.');
@@ -1792,9 +2041,16 @@ function renderProfile(){
   document.getElementById('statPieces').textContent=closet.length;
   document.getElementById('statLooks').textContent=looks.length;
   if(!profile.plan){ profile.plan='free'; profile.planStatus='ativo'; profile.credits=3; }
+  renderAccount();
   renderMyPlan();
   renderAddresses();
   persist();
+}
+function renderAccount(){
+  const el=document.getElementById('accountBody'); if(!el) return;
+  el.innerHTML=`<div class="checkout-row" style="align-items:center;"><span><span id="accountEmail"></span>${profile.role==='owner'?'<span class="badge-owner">OWNER</span>':''}</span>
+    <button class="btn btn-ghost" onclick="signOut()">SAIR</button></div>`;
+  document.getElementById('accountEmail').textContent=profile.email||(currentUser&&currentUser.email)||'—';
 }
 
 /* ---------- MEUS ENDEREÇOS ---------- */
@@ -1862,6 +2118,7 @@ try{refreshCreditsHint();}catch(e){}
 try{const st=document.getElementById('aiState');if(st)st.innerHTML='VESTRA AI <b>online</b> · memória: '+memorySummary();}catch(e){}
 // Abre direto uma tela pelo endereço, ex.: /app/#closet (usado pelos links antigos /closet/, /provador/...).
 try{const v=decodeURIComponent(location.hash.slice(1));if(v&&document.getElementById('view-'+v))showView(v);}catch(e){}
+initAuth();
 </script>
 </body>
 </html>

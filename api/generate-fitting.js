@@ -1,5 +1,6 @@
 ﻿const { fal } = await import("@fal-ai/client");
 import { guard, isImageInput } from "./_guard.js";
+import { requireUser } from "./_auth.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -9,6 +10,8 @@ export default async function handler(req, res) {
   }
 
   if (!guard(req, res, { name: "generate-fitting", limit: 6 })) return;
+
+  if (!(await requireUser(req, res))) return;
 
   try {
     const { personImage, clothingImage } = req.body || {};

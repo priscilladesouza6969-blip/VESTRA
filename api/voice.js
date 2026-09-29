@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { guard } from "./_guard.js";
+import { requireUser } from "./_auth.js";
 
 const MAX_TEXT = 1000;
 
@@ -11,6 +12,8 @@ export default async function handler(req, res) {
   }
 
   if (!guard(req, res, { name: "voice", limit: 20 })) return;
+
+  if (!(await requireUser(req, res))) return;
 
   try {
     const { text } = req.body || {};
