@@ -37,30 +37,9 @@ header nav a:hover{color:var(--text-primary)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .note{font-size:13px;color:var(--text-secondary);margin-top:var(--s3)}
 
-/* ORB */
-.orb{--glow:var(--accent-blue);position:relative;width:min(260px,62vw);aspect-ratio:1;margin:0 auto;border-radius:50%;
-  background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.22),transparent 26%),radial-gradient(circle at 50% 55%,#101020 30%,#050508 72%);
-  box-shadow:inset 0 0 40px rgba(0,0,0,.9),inset 0 -12px 40px rgba(77,124,255,.12),0 0 70px -10px color-mix(in srgb,var(--glow) 45%,transparent);
-  border:1px solid rgba(216,219,230,.22);transition:box-shadow .8s}
-.orb::before{content:"";position:absolute;inset:26%;border-radius:50%;
-  background:radial-gradient(circle,#fff 0,var(--glow) 22%,var(--accent-violet) 52%,transparent 72%);
-  filter:blur(14px);opacity:.85;animation:breathe 5s ease-in-out infinite;transition:background .8s}
-.orb::after{content:"";position:absolute;inset:-14%;border-radius:50%;border:1px solid var(--glow);opacity:0;pointer-events:none}
-.orb[data-state=listening]{--glow:#38bdf8}
-.orb[data-state=listening]::after{animation:ring 2s ease-out infinite}
-.orb[data-state=thinking]::before{animation:breathe 1.6s ease-in-out infinite}
-.orb[data-state=processing]::before{animation:swirl 2.4s linear infinite;inset:22% 30% 30% 22%}
-.orb[data-state=speaking]::before{animation:speak .7s ease-in-out infinite}
-.orb[data-state=success]{--glow:var(--success)}
-.orb[data-state=success]::after{animation:ring 1.2s ease-out 1}
-.orb[data-state=error]{--glow:var(--error)}
-.orb[data-state=error]::before{animation:shake .5s 2}
-@keyframes breathe{50%{transform:scale(1.12);opacity:1}}
-@keyframes ring{from{opacity:.7;transform:scale(.85)}to{opacity:0;transform:scale(1.25)}}
-@keyframes swirl{to{transform:rotate(360deg)}}
-@keyframes speak{0%,100%{transform:scale(.95)}50%{transform:scale(1.22)}}
-@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-@media (prefers-reduced-motion:reduce){.orb::before,.orb::after{animation:none!important}}
+/* ORB (canvas) */
+.orb{position:relative;width:min(300px,68vw);aspect-ratio:1;margin:0 auto;cursor:pointer;border-radius:50%;-webkit-tap-highlight-color:transparent}
+.orb canvas{position:absolute;inset:-25%;width:150%;height:150%;pointer-events:none}
 
 section{padding:var(--s7) var(--s5);max-width:1100px;margin:0 auto}
 h2{font:300 clamp(30px,4vw,48px)/1.1 var(--font-display);margin:0 0 var(--s4);color:var(--chrome)}
@@ -80,22 +59,58 @@ h2{font:300 clamp(30px,4vw,48px)/1.1 var(--font-display);margin:0 0 var(--s4);co
 footer{text-align:center;padding:var(--s6) var(--s4);color:var(--text-secondary);font-size:13px;border-top:1px solid var(--border)}
 footer b{display:block;font:300 22px var(--font-display);color:var(--chrome);letter-spacing:.06em;margin-bottom:var(--s2)}
 @media(max-width:640px){header{padding:var(--s3)}header nav{display:none}section{padding:var(--s6) var(--s3)}}
+
+/* MOTION */
+html,body{overflow-x:clip}
+body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;
+  background:radial-gradient(38% 38% at 18% 22%,rgba(77,124,255,.13),transparent),radial-gradient(34% 34% at 82% 72%,rgba(139,92,246,.13),transparent);animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(4%,-3%) scale(1.12)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+@keyframes fade{from{opacity:0}}
+@keyframes shine{to{background-position:-250% 0}}
+@keyframes dot{50%{opacity:.35}}
+header{animation:fade 1s both}
+.logo{background:linear-gradient(100deg,var(--silver) 35%,#fff 50%,var(--silver) 65%) 0 0/250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 7s linear infinite}
+header nav a{position:relative;transition:color .3s}
+header nav a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:1px;background:var(--silver);transform:scaleX(0);transition:transform .35s}
+header nav a:hover::after{transform:scaleX(1)}
+.js .rv{opacity:0}
+.rv.in{opacity:1;animation:rise .9s cubic-bezier(.2,.7,.2,1) var(--d,0s) backwards}
+.btn{position:relative;overflow:hidden;transition:background .3s,border-color .3s,box-shadow .4s}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);transition:transform .7s}
+.btn:hover{box-shadow:0 0 34px -6px var(--accent-violet)}
+.btn:hover::after{transform:translateX(120%)}
+.flow>div{padding:var(--s4);border:1px solid var(--border);border-radius:20px;background:var(--surface-glass);transition:transform .45s,border-color .45s,box-shadow .45s}
+.flow>div.in:hover{transform:translateY(-5px);border-color:rgba(139,92,246,.5);box-shadow:0 18px 40px -22px var(--accent-violet)}
+.sw i{transition:transform .35s}.sw:hover i{transform:scale(1.06)}
+.states button{transition:color .3s,border-color .3s,background .3s}
+.states button:hover{border-color:var(--silver);color:var(--text-primary)}
+/* ACCESS */
+.bar{position:fixed;left:50%;bottom:calc(var(--s3) + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:10px;padding:10px 20px;border-radius:999px;background:var(--surface-glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary);white-space:nowrap;animation:fade .6s}
+.bar[hidden],.pw[hidden]{display:none}
+.bar i{width:8px;height:8px;border-radius:50%;background:var(--accent-blue);animation:dot 2s infinite}
+.bar[data-k=owner] i,.bar[data-k=sub] i{background:var(--success)}
+.pw{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:var(--s4);background:rgba(5,5,8,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);animation:fade .6s}
+.pw .card{max-width:440px;text-align:center;padding:var(--s5);border:1px solid var(--border);border-radius:28px;background:var(--surface);animation:rise .8s cubic-bezier(.2,.7,.2,1)}
+.pw .card p{color:var(--text-secondary);margin:0 0 var(--s4)}
+.pw .card a{font-size:13px;color:var(--text-secondary)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 <header>
   <span class="logo">VESTRA</span>
-  <nav aria-label="Principal"><a href="#experiencia">Experiência</a><a href="#orb">Orb</a><a href="#sistema">Sistema</a></nav>
+  <nav aria-label="Principal"><a href="#experiencia">Experiência</a><a href="#orb">Orb</a><a href="#sistema">Sistema</a><a href="#acesso">Acesso</a></nav>
 </header>
 
 <main>
 <div class="hero">
   <div>
-    <div class="orb" id="heroOrb" data-state="idle" role="img" aria-label="VESTRA Orb, a inteligência da plataforma"></div>
+    <div class="orb" id="heroOrb" data-state="idle" role="button" tabindex="0" aria-label="VESTRA Orb. Ative para ver a IA ouvir, pensar e responder"></div>
     <h1>A VESTRA entende<br>o seu estilo.</h1>
     <p>Sua inteligência pessoal de moda. Ela aprende com o seu closet, cria looks e mostra como cada peça fica em você.</p>
-    <a class="btn" href="/app/">Começar 3 dias grátis</a>
-    <p class="note">Protótipo visual da Fase 1. O cadastro será ligado na Fase 2.</p>
+    <a class="btn" id="cta" href="#experiencia">Começar 3 dias grátis</a>
+    <p class="note">Depois dos 3 dias, a assinatura é obrigatória. Protótipo: cadastro e pagamento entram na Fase 2.</p>
   </div>
 </div>
 
@@ -122,10 +137,23 @@ footer b{display:block;font:300 22px var(--font-display);color:var(--chrome);let
   <p class="lead">Paleta base definida como tokens. Os componentes seguem na Fase 1 do repositório.</p>
   <div class="tokens" id="tokens"></div>
 </section>
+<section id="acesso">
+  <h2>3 dias grátis. Depois, assinatura.</h2>
+  <p class="lead">Você usa a VESTRA por 3 dias. Terminado o teste, o acesso exige uma assinatura ativa. O owner mantém acesso total, sempre.</p>
+  <div class="states" id="sim" role="group" aria-label="Simulação de acesso" style="justify-content:flex-start"></div>
+  <p class="note">Simulação no navegador para validar o fluxo. A regra real de acesso precisa rodar no servidor (Fase 2).</p>
+</section>
 </main>
 
-<footer><b>VESTRA</b>Your style. Evolved.</footer>
+<footer><b>VESTRA</b>Your style. Evolved.<br><a href="#" class="own" style="display:inline-block;margin-top:16px">Acesso owner</a></footer>
 
+<div class="bar" id="bar" role="status" hidden></div>
+<div class="pw" id="pw" role="dialog" aria-modal="true" aria-labelledby="pwT" hidden><div class="card">
+  <h2 id="pwT" style="font-size:34px">Seu teste de 3 dias terminou.</h2>
+  <p>Assine a VESTRA para continuar com o closet, os looks, o provador e a Stylist.</p>
+  <button class="btn" id="subBtn" type="button">Assinar a VESTRA</button>
+  <p class="note" style="margin-bottom:0"><a href="#" class="own">Sou o owner</a> · <a href="#" id="rstBtn">Reiniciar simulação</a></p>
+</div></div>
 <script>
 const states=[['idle','Repouso'],['listening','Ouvindo'],['thinking','Pensando'],['processing','Processando'],['speaking','Falando'],['success','Sucesso'],['error','Erro']];
 const orb=document.getElementById('demoOrb'),box=document.getElementById('stateBtns');
@@ -134,6 +162,103 @@ states.forEach(([k,l],i)=>{const b=document.createElement('button');b.textConten
 const t=document.getElementById('tokens');
 ['background-primary','background-secondary','surface','silver','chrome','accent-blue','accent-violet','success','warning','error'].forEach(n=>{
   const d=document.createElement('div');d.className='sw';d.innerHTML='<i style="background:var(--'+n+')"></i>'+n;t.appendChild(d)});
+
+document.documentElement.classList.add('js');
+/* ===== ORB ===== */
+const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function Orb(el){
+  const cv=document.createElement('canvas');cv.setAttribute('aria-hidden','true');el.appendChild(cv);
+  let g=cv.getContext('2d');const G=g,oc=document.createElement('canvas'),og=oc.getContext('2d');
+  const C={idle:[77,124,255],listening:[56,189,248],thinking:[139,92,246],processing:[167,139,250],speaking:[96,140,255],success:[74,222,128],error:[248,113,113]};
+  let col=[77,124,255],sc=1,pulse=0,burst=0,mx=0,my=0,tx=0,ty=0,hover=0,ring=0,flow=0,amp=0,W=0,t=0,last=0,vis=true,prev='idle';
+  const P=Array.from({length:64},()=>({a:Math.random()*6.283,r:.55+Math.random()*.75,s:(.15+Math.random()*.35)*(Math.random()<.5?-1:1),z:.6+Math.random()*1.6,p:Math.random()*6.28}));
+  const size=()=>{const d=Math.min(devicePixelRatio||1,2),b=cv.getBoundingClientRect();W=b.width;cv.width=cv.height=oc.width=oc.height=Math.round(W*d);g.setTransform(d,0,0,d,0,0);og.setTransform(d,0,0,d,0,0)};
+  new ResizeObserver(size).observe(el);size();
+  new IntersectionObserver(e=>vis=e[0].isIntersecting).observe(el);
+  addEventListener('pointermove',e=>{const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    tx=Math.max(-1,Math.min(1,(e.clientX-cx)/(innerWidth/2)*1.6));ty=Math.max(-1,Math.min(1,(e.clientY-cy)/(innerHeight/2)*1.6))},{passive:true});
+  el.addEventListener('pointerenter',()=>hover=1);el.addEventListener('pointerleave',()=>hover=0);
+  el.addEventListener('pointerdown',()=>pulse=1);
+  const f=a=>`rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a})`;
+  const k=(a,b)=>Math.min(1,a*b);
+  function draw(now){
+    const dt=Math.min((now-last)/1000,.05);last=now;t+=dt*(RM?.25:1);
+    const st=el.dataset.state||'idle';
+    if(st!==prev){if(st==='success'||st==='error')burst=1;prev=st}
+    const c=C[st]||C.idle;for(let i=0;i<3;i++)col[i]+=(c[i]-col[i])*k(dt,4);
+    const scT=(st==='listening'?1.14:st==='speaking'?1.04:1)+hover*.05;sc+=(scT-sc)*k(dt,4);
+    pulse*=Math.exp(-dt*3);burst*=Math.exp(-dt*1.6);
+    mx+=(tx-mx)*k(dt,5);my+=(ty-my)*k(dt,5);
+    ring+=((st==='listening'?1:0)-ring)*k(dt,3);
+    flow+=((st==='thinking'||st==='processing'?1:0)-flow)*k(dt,3);
+    let aT=0;if(st==='speaking'){aT=typeof el._level==='number'?el._level:Math.min(1,.3+.4*Math.abs(Math.sin(t*7.3)*Math.sin(t*2.3+1))+.3*Math.abs(Math.sin(t*13)))}
+    amp+=(aT-amp)*k(dt,10);
+    const sp=st==='processing'?3.2:st==='thinking'?1.7:.55;
+    g.clearRect(0,0,W,W);
+    const S=W/1.5,R=S*.42*(sc+pulse*.06+amp*.06);
+    let X=W/2+mx*S*.02,Y=W/2+my*S*.02;if(st==='error')X+=Math.sin(t*60)*R*.05*burst;
+    const A=.4+amp*.25+burst*.3;let q=g.createRadialGradient(X,Y,0,X,Y,W/2);[[0,1],[.25,.75],[.4,.4],[.55,.18],[.7,.06],[.85,.015],[1,0]].forEach(([s,m])=>q.addColorStop(s,f(A*m)));g.fillStyle=q;g.fillRect(0,0,W,W);
+    g.shadowColor=f(.6);g.shadowBlur=16;g.lineWidth=1.2;
+    for(let i=0;i<3;i++){const p=(t*.5+i/3)%1;g.strokeStyle=f(Math.pow(1-p,1.5)*.3*ring);g.beginPath();g.arc(X,Y,R*(1.05+p*.85),0,6.283);g.stroke()}
+    if(burst>.02){g.strokeStyle=f(burst*.35);g.beginPath();g.arc(X,Y,R*(1.05+(1-burst)*.9),0,6.283);g.stroke()}
+    g.lineWidth=1;
+    for(let j=0;j<2;j++){g.strokeStyle=f(.14-j*.05);g.beginPath();
+      for(let a=0;a<=6.30;a+=.05){const r=R*(1.08+j*.06)+Math.sin(a*(5+j*2)+t*(1.2+j*.5)*(1+flow))*R*(.015+.02*amp+.02*ring);const x=X+Math.cos(a)*r,y=Y+Math.sin(a)*r;a?g.lineTo(x,y):g.moveTo(x,y)}
+      g.closePath();g.stroke()}
+    g.shadowBlur=0;og.clearRect(0,0,W,W);g=og;g.save();g.beginPath();g.arc(X,Y,R*1.12,0,6.283);g.clip();
+    q=g.createRadialGradient(X-R*.3,Y-R*.35,R*.1,X,Y,R);q.addColorStop(0,'#1a1a30');q.addColorStop(1,'#050508');g.fillStyle=q;g.fillRect(X-R*1.2,Y-R*1.2,R*2.4,R*2.4);
+    g.globalCompositeOperation='lighter';
+    for(let i=0;i<4;i++){const a=t*sp*(.8+i*.3)+i*1.6,d=R*(.28+.12*Math.sin(t*.7+i)),bx=X+Math.cos(a)*d+mx*R*.12,by=Y+Math.sin(a)*d+my*R*.12,br=R*(.55+.1*Math.sin(t+i*2));
+      const rgb=i%2?`${col[0]|0},${col[1]|0},${col[2]|0}`:'139,92,246';
+      q=g.createRadialGradient(bx,by,0,bx,by,br);q.addColorStop(0,`rgba(${rgb},.5)`);q.addColorStop(1,`rgba(${rgb},0)`);g.fillStyle=q;g.fillRect(X-R*1.2,Y-R*1.2,R*2.4,R*2.4)}
+    if(flow>.02){g.lineWidth=2;g.lineCap='round';for(let j=0;j<3;j++){g.strokeStyle=`rgba(255,255,255,${.35*flow})`;const a=t*sp*(1+j*.6)*(j%2?-1:1);g.beginPath();g.arc(X,Y,R*(.35+j*.18),a,a+1.3);g.stroke()}}
+    q=g.createRadialGradient(X+mx*R*.1,Y+my*R*.1,0,X+mx*R*.1,Y+my*R*.1,R*.5);q.addColorStop(0,`rgba(255,255,255,${.55+amp*.4})`);q.addColorStop(.35,f(.5));q.addColorStop(1,f(0));g.fillStyle=q;g.fillRect(X-R*1.2,Y-R*1.2,R*2.4,R*2.4);
+    g.globalCompositeOperation='source-over';
+    
+    q=g.createRadialGradient(X-R*.35,Y-R*.4,0,X-R*.35,Y-R*.4,R*.45);q.addColorStop(0,'rgba(255,255,255,.2)');q.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=q;g.fillRect(X-R*1.2,Y-R*1.2,R*2.4,R*2.4);
+    g.restore();g.globalCompositeOperation='destination-out';q=g.createRadialGradient(X,Y,0,X,Y,R*1.12);[[0,0],[.3,0],[.5,.1],[.65,.3],[.8,.6],[.92,.88],[1,1]].forEach(([s,m])=>q.addColorStop(s,`rgba(0,0,0,${m})`));g.fillStyle=q;g.fillRect(0,0,W,W);g.globalCompositeOperation='source-over';g=G;g.drawImage(oc,0,0,W,W);
+    for(const p of P){const a=p.a+t*p.s*sp,rr=R*p.r*(1+.05*Math.sin(t*p.z+p.p))+burst*R*.5*p.z*.4,x=X+Math.cos(a)*rr+mx*R*.05*p.z,y=Y+Math.sin(a)*rr*.92+my*R*.05*p.z;
+      g.fillStyle=p.z>1.6?f(.3+.5*Math.abs(Math.sin(t*p.z+p.p))):`rgba(216,219,230,${.2+.4*Math.abs(Math.sin(t*p.z+p.p))})`;g.beginPath();g.arc(x,y,.8+p.z*.6,0,6.283);g.fill()}
+  }
+  (function loop(n){if(vis)draw(n);requestAnimationFrame(loop)})(performance.now());
+}
+const heroOrb=document.getElementById('heroOrb');
+Orb(heroOrb);Orb(document.getElementById('demoOrb'));
+let running=false;
+const seq=[['listening',1800],['thinking',1500],['speaking',2000],['success',1300],['idle',0]];
+function run(i=0){running=true;heroOrb.dataset.state=seq[i][0];if(i<seq.length-1)setTimeout(()=>run(i+1),seq[i][1]);else running=false}
+heroOrb.addEventListener('click',()=>{if(!running)run()});
+heroOrb.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();heroOrb.click()}});
+
+/* ===== REVEAL ===== */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.hero h1,.hero p,.hero .btn,h2,.lead,.flow>div,.sw,.note,#sim').forEach(e=>{
+  e.classList.add('rv');e.style.setProperty('--d',([...e.parentNode.children].indexOf(e)%8*.08)+'s');io.observe(e)});
+
+/* ===== ACCESS (simulação local; regra real no servidor na Fase 2) ===== */
+const K='vestra_access',DAY=864e5,TRIAL=3,OWNERS=['owner@vestra.app'];
+let mem={};try{mem=JSON.parse(localStorage.getItem(K))||{}}catch(e){}
+const set=o=>{mem=o;try{localStorage.setItem(K,JSON.stringify(o))}catch(e){}render()};
+const left=()=>Math.ceil((mem.start+TRIAL*DAY-Date.now())/DAY);
+const status=()=>mem.owner?'owner':mem.sub?'sub':!mem.start?'none':left()>0?'trial':'expired';
+const bar=document.getElementById('bar'),pw=document.getElementById('pw');
+function render(){
+  const st=status(),ex=st==='expired',n=st==='trial'?left():0;
+  pw.hidden=!ex;bar.hidden=st==='none'||ex;bar.dataset.k=st;
+  bar.innerHTML='<i></i>'+(st==='owner'?'Owner · acesso total':st==='sub'?'Assinatura ativa':n===1?'Último dia do teste grátis':'Teste grátis · '+n+' dias restantes');
+  ['header','main','footer'].forEach(q=>document.querySelector(q).inert=ex);
+  document.documentElement.style.overflow=ex?'hidden':'';
+  if(ex)document.getElementById('subBtn').focus();
+}
+document.getElementById('cta').addEventListener('click',()=>{if(status()==='none')set({start:Date.now()})});
+document.getElementById('subBtn').onclick=()=>set({start:mem.start,sub:true});
+document.getElementById('rstBtn').onclick=e=>{e.preventDefault();set({})};
+document.querySelectorAll('.own').forEach(a=>a.onclick=e=>{e.preventDefault();const v=prompt('E-mail do owner');
+  if(v&&OWNERS.includes(v.trim().toLowerCase()))set({owner:true});else if(v!==null)alert('E-mail não autorizado.')});
+const sim=document.getElementById('sim');
+[['Iniciar teste',()=>({start:Date.now()})],['1 dia restante',()=>({start:Date.now()-2*DAY})],['Expirar teste',()=>({start:Date.now()-3*DAY-1e3})],['Assinante',()=>({start:mem.start||Date.now(),sub:true})],['Owner',()=>({owner:true})],['Zerar',()=>({})]]
+  .forEach(([l,fn])=>{const b=document.createElement('button');b.type='button';b.textContent=l;b.onclick=()=>set(fn());sim.appendChild(b)});
+setInterval(render,6e4);render();
 </script>
 </body>
 </html>
